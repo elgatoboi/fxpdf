@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="absolute"
+				viewSourceURL="srcview/index.html">
+	
+	<mx:Script>
+		<![CDATA[
+			import demos.textDemo2;
+			import mx.controls.Text;
+			import demos.textDemo;
+			import demos.arcDemo;
+			import demos.encodingList;
+			import com.fxpdf.streams.HPDF_MemStreamAttr;
+			import demos.fontDemo;
+			import com.fxpdf.doc.HPDF_Doc;
+			import mx.controls.Alert;
+			
+			
+			
+			private	function	runTest( name : String ) : void
+			{
+				var pdfDoc : HPDF_Doc ; 
+				
+				if ( name == "fontTest" )
+					pdfDoc = fontDemo.run() ;
+				if ( name == "encodingList" )
+					pdfDoc	= encodingList.run() ; 
+				if ( name == "arcDemo" ) 
+					pdfDoc = arcDemo.run() ; 
+				if ( name == "textDemo" ) 
+					pdfDoc = textDemo.run() ; 
+				if ( name == "textDemo2" )
+					pdfDoc = textDemo2.run(); 
+				
+				
+				if ( pdfDoc )  // save to file
+				{
+					pdfDoc.HPDF_SaveToStream();  
+					var memAttr : HPDF_MemStreamAttr	=	pdfDoc.stream.attr	as HPDF_MemStreamAttr;
+					memAttr.buf.position	=	0;
+					
+					/** SAVING A FILE IN AIR */
+					/*var fs : FileStream = new FileStream();
+					var fl : File	=	File.desktopDirectory.resolvePath( name + ".pdf" );
+					//open file in write mode
+					fs.open( fl, FileMode.WRITE );
+					//write bytes from the byte array
+					fs.writeBytes( memAttr.buf );   
+					//close the file
+					fs.close(); */
+					/*** SAVING IN Flash Player **/
+					var fileRef:FileReference = new FileReference();
+					fileRef.save( memAttr.buf, name + ".pdf" );
+				} 
+				else
+					Alert.show("Unknown test name");
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox paddingLeft="50" paddingTop="20">
+		
+		<mx:Button label="Arc Demo" click='runTest("arcDemo");' />
+		<mx:Button label="Encoding List" click='runTest("encodingList");' />
+		<mx:Button label="Font Test" click='runTest("fontTest");' /> 
+		<mx:Button label="Text Demo" click='runTest("textDemo");' />
+		<mx:Button label="Text Demo2" click='runTest("textDemo2");' />
+	</mx:VBox> 
+	
+</mx:Application>

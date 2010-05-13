@@ -1,0 +1,14 @@
+#summary FAQ.
+#labels Featured
+
+= Frequently Asked Questions =
+
+Only standard PDF fonts and TTF fonts are supported.
+
+= TO-DO list =
+
+We are working currently on following standard libharu library features:
+
+  * Encryption
+  * Compression
+  * Image embeding (pdf, jpg)

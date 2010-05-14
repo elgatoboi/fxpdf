@@ -326,8 +326,8 @@ package com.fxpdf.doc
     	curPage	=	page; 
     
 
-	    /* TODOif (pdf->compression_mode & HPDF_COMP_TEXT)
-	        HPDF_Page_SetFilter (page, HPDF_STREAM_FILTER_FLATE_DECODE); */
+	    if ( compressionMode & HPDF_Consts.HPDF_COMP_TEXT)
+			page.HPDF_Page_SetFilter ( HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE); 
 
 	    curPageNum++;
 
@@ -790,7 +790,17 @@ package com.fxpdf.doc
 		    catalog.HPDF_Catalog_SetPageMode ( mode );
 		} // end HPDF_SetPageMode
 		    
-	 
+		public	function HPDF_SetCompressionMode  ( mode : uint ) :void 
+		{
+			if (mode != (mode & HPDF_Consts.HPDF_COMP_MASK)) {
+				throw new HPDF_Error("HPDF_SetCompressionMode", HPDF_Error.HPDF_INVALID_COMPRESSION_MODE);
+			}
+			
+			compressionMode = mode;
+			
+		}
+		
+
 
 	 
 

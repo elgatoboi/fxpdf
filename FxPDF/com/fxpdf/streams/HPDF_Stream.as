@@ -35,8 +35,13 @@ package com.fxpdf.streams
 	import com.fxpdf.objects.HPDF_Proxy;
 	import com.fxpdf.objects.HPDF_String;
 	import com.fxpdf.types.HPDF_Real;
-	import com.fxpdf.types.enum.HPDF_WhenceMode; 
-	import flash.utils.ByteArray ;  
+	import com.fxpdf.types.enum.HPDF_WhenceMode;
+	import com.wizhelp.fzlib.FZlib;
+	import com.wizhelp.fzlib.ZStream;
+	
+	import flash.utils.ByteArray;
+
+;  
 	// import flash.utils.ByteArray ;  
 	
 	public class HPDF_Stream
@@ -667,10 +672,9 @@ package com.fxpdf.streams
 		
 		            array.HPDF_Array_Clear( ); 
 
-					/* TODO #ifndef HPDF_NOZLIB
-					            if (dict->filter & HPDF_STREAM_FILTER_FLATE_DECODE)
-					                HPDF_Array_AddName (array, "FlateDecode");
-					#endif /* HPDF_NOZLIB */
+		            if ( dict.filter & HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE)
+						array.HPDF_Array_AddName ( "FlateDecode" );
+					
 
 		            if (dict.filter & HPDF_STREAM_FILTER_DCT_DECODE)
 		                array.HPDF_Array_AddName ("DCTDecode");
@@ -773,10 +777,10 @@ package com.fxpdf.streams
 		    trace(" HPDF_Stream_WriteToStream");
 		
 		    
-			/* TODO #ifndef HPDF_NOZLIB
-			    if (filter & HPDF_STREAM_FILTER_FLATE_DECODE)
-			        return HPDF_Stream_WriteToStreamWithDeflate (src, dst, e);
-			#endif /* HPDF_NOZLIB */ 
+			
+			if (filter & HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE)
+				return this.HPDF_Stream_WriteToStreamWithDeflate (src, e);
+			 
 		
 		    /* initialize input stream */
 		    if (src.HPDF_Stream_Size () == 0)
@@ -914,6 +918,65 @@ package com.fxpdf.streams
 			    return HPDF_OK;
 			    */
 			}
+		  
+		  private function HPDF_Stream_WriteToStreamWithDeflate( src:HPDF_Stream, e : HPDF_Encrypt ):void 
+		  {
+			  var zstream		:ZStream;
+			  trace("HPDF_Stream_WriteToStreamWithDeflate");
+			  
+			  src.HPDF_Stream_Seek( 0 , HPDF_WhenceMode.HPDF_SEEK_SET ) 	
+			  
+			  var	attr : HPDF_MemStreamAttr	=	attr as HPDF_MemStreamAttr;
+			  
+			  zstream = new ZStream();
+			  
+			  var err: int = zstream.deflateInit(  FZlib.Z_DEFAULT_COMPRESSION );
+			  
+			  var comprLen : int = 40000;
+			  var compr:ByteArray=new ByteArray();
+			  compr.length=comprLen;
+			  
+			  zstream.next_in = src.attr.buf;
+			  zstream.next_in_index = 0;
+			  
+			  zstream.next_out=compr;
+			  zstream.next_out_index=0;
+			  
+			  while(zstream.total_in != src.attr.buf.length && zstream.total_out < comprLen){
+				  
+				  zstream.avail_in = zstream.avail_out = 1; // force small buffers
+				  err = zstream.deflate(FZlib.Z_NO_FLUSH);
+				  CheckError(zstream, err, "deflate");
+				  
+			  }
+			  while(true){
+				  
+				  zstream.avail_out=1;
+				  err=zstream.deflate(FZlib.Z_FINISH);      
+				  if(err==FZlib.Z_STREAM_END)break;
+				  CheckError(zstream, err, "deflate");
+				  
+			  }
+			  
+			  err=zstream.deflateEnd();      
+			  attr.buf.writeBytes( compr, 0,zstream.total_out);
+			    
+			  
+		  }
+		  
+		
+		private function CheckError(z:ZStream, err:int, msg:String):void {
+				
+				if (err!=FZlib.Z_OK) {
+					/*if (z.msg!=null)
+					output.text+=(z.msg);
+					output.text=msg+" error: "+err;
+					*/
+					throw new Error(msg+" error: "+err, err);
+				}
+				
+			}       
+
 			
 }
   

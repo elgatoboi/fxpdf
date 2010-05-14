@@ -983,6 +983,13 @@ package com.fxpdf.page
 		{
 			null ; 
 		}
+		
+		public function HPDF_Page_SetFilter  ( filter : uint ):void 
+		{
+			trace(" HPDF_Page_SetFilter");
+			pageAttr.contents.filter = filter; 
+		} 
+
 
 		
 

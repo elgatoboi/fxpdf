@@ -245,36 +245,26 @@ package com.fxpdf.xref
 		
 		        for ( i = strIdx; i < tmpXref.entries.length ; i++)
 		        {
-		            entry 	=	tmpXref.entries[i]; //HPDF_List_ItemAt( i );
-		                        //(HPDF_XrefEntry)HPDF_List_ItemAt (tmp_xref->entries, i);
+		            entry 	=	tmpXref.entries[i]; 
+					
 		            var	objId : uint	=	tmpXref.startOffset + i; 
-		            
 		            var genNo : uint	=	entry.genNo ; 
 		
 		            entry.byteOffset	=	stream.size ;
 		            
 		
-		            //pbuf = buf;
 		            pbuf	=	new String();
-		            //pbuf = HPDF_IToA (pbuf, obj_id, eptr);
-		            pbuf	=	objId.toString();
-		            //*pbuf++ = ' ';
+		            pbuf	=	HPDF_Utils.HPDF_IToA( objId );
 		            pbuf	+=	" ";
-		            //pbuf = HPDF_IToA (pbuf, gen_no, eptr);
-		            pbuf	+=	genNo.toString();
-		            //
-		            //HPDF_StrCpy(pbuf, " obj\012", eptr);
+		            pbuf	+=	HPDF_Utils.HPDF_IToA( genNo );
+		            
 		            pbuf += HPDF_Utils.ParseString(" obj\\012" );
-		
-		            //if ((ret = HPDF_Stream_WriteStr (stream, buf)) != HPDF_OK)
-		            //   return ret;
+					trace("Writing object");
 		            stream.HPDF_Stream_WriteStr( pbuf );
 		
-		            /* TODO if (e)
-		                HPDF_Encrypt_InitKey (e, obj_id, gen_no);
-					*/
-		            //if ((ret = HPDF_Obj_WriteValue (entry->obj, stream, e)) != HPDF_OK)
-		             //  return ret;
+		            if (e)
+		                e.HPDF_Encrypt_InitKey (objId, genNo);
+					
 		            stream.HPDF_Obj_WriteValue( entry.obj, e) ; 
 		
 		            stream.HPDF_Stream_WriteStr (HPDF_Utils.ParseString("\\012endobj\\012"));

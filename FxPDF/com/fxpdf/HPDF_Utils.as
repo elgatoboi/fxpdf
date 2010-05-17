@@ -19,7 +19,11 @@ package com.fxpdf
 {
 	import com.fxpdf.error.HPDF_Error;
 	import com.fxpdf.types.HPDF_Point;
+	
 	import flash.utils.ByteArray;
+	
+	import mx.core.UIComponent;
+
 	//import flash.utils.ByteArray;
 	
 	public class HPDF_Utils
@@ -180,6 +184,67 @@ package com.fxpdf
         } // end ByteArrayReadLn
 			
 		
+		public static function ByteArrayToVector( ba:ByteArray ):Vector.<int>
+		{
+			var ret:Vector.<int> = new Vector.<int>(ba.length);
+			ba.position = 0; 
+			for ( var i:int = 0; i < ba.length ; i++) {
+				ret[i] = ba.readByte();
+			}
+			return ret; 
+		}
+		
+		public static function VectorToByteArray( vec:Vector.<int> ) :ByteArray
+		{
+			var ret:ByteArray = new ByteArray;
+			for ( var i:int = 0; i < vec.length ; i++ ) { 
+				ret.writeByte( ret[i] );
+			}
+			return ret; 
+		}
+		
+		public static function VectorMemSet( vec:Vector.<int>, start:int, value:int, count:int ):void
+		{
+			for (var i:int = 0; i< count ;i++) 
+				vec[start + i] = value; 
+		}
+		
+		public static function createByteArray( len:uint, value:uint = 0):ByteArray
+		{
+			var ret:ByteArray = new ByteArray;
+			ret.length = len;
+			for ( var i:int = 0; i < len ; i++ ) 
+				ret[i] = value; 
+			return ret; 
+		}
+		
+		public static function byteArraySet( src:ByteArray, start:uint, len:uint, value:uint ):void
+		{
+			for (var i:int = 0; i< len ; i ++ ) 
+				src[ start + i ] = value; 
+		}
+		
+		public static function arrayToByteArray( array :Array ):ByteArray
+		{
+			var ret:ByteArray = new ByteArray;
+			for ( var i:int = 0; i < array.length ; i++) 
+				ret.writeByte( array[i] );
+			return ret; 
+		}
+		
+		
+		public static function bytesToHex( dst:ByteArray, src:ByteArray ):void
+		{
+			/** Quicker **/
+			for ( var i:int =  0; i<  src.length ; i++) { 
+				var b:int = src[i];
+				var hex:String = b.toString(16);
+				if ( hex.length == 1 ) 
+					hex = "0" +hex;
+				dst.writeUTFBytes( hex.toUpperCase() );
+			}
+	
+		}
 
 	}
 }

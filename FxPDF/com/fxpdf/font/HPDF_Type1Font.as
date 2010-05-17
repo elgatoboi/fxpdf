@@ -19,6 +19,7 @@ package com.fxpdf.font
 {
 	import com.fxpdf.HPDF_Utils;
 	import com.fxpdf.dict.HPDF_Dict;
+	import com.fxpdf.dict.HPDF_DictStream;
 	import com.fxpdf.encoder.HPDF_BasicEncoderAttr;
 	import com.fxpdf.encoder.HPDF_Encoder;
 	import com.fxpdf.error.HPDF_Error;
@@ -256,7 +257,7 @@ package com.fxpdf.font
 		
 		        if (defAttr.fontData)
 		        {
-		            var	fontData : HPDF_Dict	=	HPDF_Dict.HPDF_DictStream_New( xref ) ; 
+		            var	fontData :HPDF_DictStream =	new HPDF_DictStream( xref ) ; 
 					//fontData.stream.HPDF_Stream_WriteToStream( defAttr.fontData, HPDF_Stream.HPDF_STREAM_FILTER_NONE, null );
 					defAttr.fontData.position = 0 ; 
 					fontData.stream.HPDF_Stream_Write(  defAttr.fontData ) ;

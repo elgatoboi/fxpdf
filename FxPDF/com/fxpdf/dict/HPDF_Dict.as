@@ -193,23 +193,7 @@ package com.fxpdf.dict
     
     
     
-    public	static	function	HPDF_DictStream_New( xref : HPDF_Xref ) : HPDF_Dict
-    {
-    	var	obj :HPDF_Dict	=	new HPDF_Dict( ) ;
-	    
-	    xref.HPDF_Xref_Add( obj );
-	    
-	    var	length : HPDF_Number	=	new HPDF_Number( 0 ) ;
-	    
-	    xref.HPDF_Xref_Add( length );
-	    
-	    obj.HPDF_Dict_Add( "Length", length);
-
-	    obj.stream = new HPDF_MemStream(); 
-	    
-	    return obj; 
-    }	
-    
+      
     public	function	HPDF_Dict_RemoveElement( key : String ) : void
     {
     	for (var i:int = 0; i < list.length; i++)

@@ -18,6 +18,7 @@ limitations under the License.
 package com.fxpdf.font
 {
 	import com.fxpdf.dict.HPDF_Dict;
+	import com.fxpdf.dict.HPDF_DictStream;
 	import com.fxpdf.encoder.HPDF_BasicEncoderAttr;
 	import com.fxpdf.encoder.HPDF_Encoder;
 	import com.fxpdf.error.HPDF_Error;
@@ -142,7 +143,7 @@ package com.fxpdf.font
 		
 		        if (defAttr.embedding)
 		        {
-		            var	fontData : HPDF_Dict	=	HPDF_Dict.HPDF_DictStream_New ( fontAttr.xref );
+		            var	fontData :HPDF_DictStream	=	new HPDF_DictStream( fontAttr.xref ) ;
 		            
 		            (fontAttr.fontdef as HPDF_FontDef_TT).HPDF_TTFontDef_SaveFontData ( fontData.stream );
 

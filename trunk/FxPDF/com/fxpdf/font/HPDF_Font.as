@@ -77,7 +77,7 @@ package com.fxpdf.font
 		
 		    var fontAttr:HPDF_FontAttr = attr as HPDF_FontAttr;
 		
-		    if (!fontAttr.textWidthFn)
+		    if (fontAttr.textWidthFn == null ) 
 		    {
 		        throw new HPDF_Error("HPDF_Font_TextWidth",  HPDF_Error.HPDF_INVALID_OBJECT, 0);
 		    }
@@ -147,7 +147,7 @@ package com.fxpdf.font
 		    {
 		        throw new HPDF_Error("HPDF_Font_MeasureText", HPDF_Error.HPDF_STRING_OUT_OF_RANGE, 0);
 		    }
-			if ( ! attr.measureTextFn ) 
+			if ( attr.measureTextFn == null ) 
 				throw new HPDF_Error("HPDF_Font_MeasureText", HPDF_Error.HPDF_INVALID_OBJECT, 0);
 		    
 		    return attr.measureTextFn ( this, text, len, width, fontSize,

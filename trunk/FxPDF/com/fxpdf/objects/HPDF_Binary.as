@@ -22,14 +22,18 @@ package com.fxpdf.objects
 	public class HPDF_Binary extends HPDF_Object
 	{
 		
-		public	var	value : ByteArray ; 
+		public	var	value 			:ByteArray;
 		
 		public	function	get	len ( ) : uint
 		{
 			return value.length ; 
 		}
-		public function HPDF_Binary()
+		public function HPDF_Binary( value:ByteArray )
 		{
+			super();
+			this.header.objClass = HPDF_Obj_Header.HPDF_OCLASS_BINARY;
+			this.value = value; 
+			
 		}
 
 	}

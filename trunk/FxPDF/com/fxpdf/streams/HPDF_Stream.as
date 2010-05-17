@@ -148,11 +148,8 @@ package com.fxpdf.streams
 		{
 		    var header:HPDF_Obj_Header	=	obj.header ;
 		
-		   //trace(" HPDF_Obj_WriteValue");
-		
-		    /*HPDF_PTRACE((" HPDF_Obj_WriteValue obj=0x%08X obj_class=0x%04X\n",
-		            (HPDF_UINT)obj, (HPDF_UINT)header->obj_class));
-		*/
+		   	trace(" HPDF_Obj_WriteValue");
+		    
 			var	clas : Number	=	header.objClass & HPDF_Obj_Header.HPDF_OCLASS_ANY;
 		    switch (clas)
 		    {
@@ -302,20 +299,18 @@ package com.fxpdf.streams
 		var	tmpLen : uint ; 
     	trace(" HPDF_String_Write");
 
-	    /* TODO if (e)
-	        HPDF_Encrypt_Reset (e); */
+	    if (e)
+	        e.HPDF_Encrypt_Reset ();
 
 	    if (obj.encoder == null)
 	    {
 	        if (e) {
-	          /* TODO   if ((ret = HPDF_Stream_WriteChar (stream, '<')) != HPDF_OK)
-	                return ret;
-	
-	            if ((ret = HPDF_Stream_WriteBinary (stream, obj->value,
-	                    HPDF_StrLen ((char *)obj->value, -1), e)) != HPDF_OK)
-	                return ret;
-	
-	            return HPDF_Stream_WriteChar (stream, '>');*/
+				HPDF_Stream_WriteStr ("<");
+	                
+				var bytes:ByteArray = new ByteArray;
+				bytes.writeUTFBytes( obj.value ); 
+	            HPDF_Stream_WriteBinary ( bytes, e );
+				HPDF_Stream_WriteStr (">");
 	        } else
 	        {
 	            HPDF_Stream_WriteEscapeText ( obj.value, obj.encoder );
@@ -398,10 +393,11 @@ package com.fxpdf.streams
 		    HPDF_Stream_WriteStr ("<") ;
 		        
 		
-		   /* TODO  if (e)
-		        HPDF_Encrypt_Reset (e); */
-		
-		    HPDF_Stream_WriteBinary (obj.value,  e);
+		    if (e)
+		     e.HPDF_Encrypt_Reset(); 
+			
+			// var buf:ByteArray = HPDF_Utils.VectorToByteArray( obj.value );
+		    HPDF_Stream_WriteBinary ( obj.value,  e);
 		
 		    HPDF_Stream_WriteStr (">"); 
 	    	
@@ -413,10 +409,11 @@ package com.fxpdf.streams
 	    	buf.writeMultiByte( str, "unicode" ) ; 
 	    	HPDF_Stream_WriteBinary( buf, e ); 
 	    }
+		
+		
 	    /** Write binary data **/
 	    public	function	HPDF_Stream_WriteBinary  ( data : ByteArray , e : HPDF_Encrypt) : void
 	    {
-		         
 		    /* C char buf[HPDF_TEXT_DEFAULT_LEN];
 		    HPDF_BYTE ebuf[HPDF_TEXT_DEFAULT_LEN];
 		    HPDF_BYTE *pbuf = NULL;
@@ -425,80 +422,51 @@ package com.fxpdf.streams
 		    HPDF_UINT i;
 		    const HPDF_BYTE* p;
 		    HPDF_STATUS ret = HPDF_OK; */
-		    var	p : ByteArray	; 
-			var ret: ByteArray	=	new ByteArray();
+			var ebuf		: ByteArray = HPDF_Utils.createByteArray( HPDF_Consts.HPDF_TEXT_DEFAULT_LEN );
+			var pbuf		: ByteArray ;
+		    var	p 			: ByteArray	; 
+			var ret			: ByteArray	=	new ByteArray();
 			var	idx : int	=	0;
-			var	b : int ; 
+			var	b :int;
 			var c : int ; 
+			var flg		: Boolean = false; 
+			var len		:uint = data.length;
+			
 			
 		    trace(" HPDF_Stream_WriteBinary");
+			data.position = 0; 
+			//var str:String = data.readUTFBytes(
 
 		    if (e) {
-		        /* TODO if (len <= HPDF_TEXT_DEFAULT_LEN)
+		        
+				if (len <= HPDF_Consts.HPDF_TEXT_DEFAULT_LEN)
 		            pbuf = ebuf;
 		        else {
-		            pbuf = (HPDF_BYTE *)HPDF_GetMem (stream->mmgr, len);
-		            flg = HPDF_TRUE;
+		            pbuf = HPDF_Utils.createByteArray( HPDF_Consts.HPDF_TEXT_DEFAULT_LEN );
+		            flg = true;
 		        }
-		
-		        HPDF_Encrypt_CryptBuf (e, data, pbuf, len);
-		        p = pbuf; */
+				
+				pbuf = HPDF_Utils.createByteArray( len );
+		        e.HPDF_Encrypt_CryptBuf ( data, pbuf, len);
+		        p = pbuf; 
 		    } else 
 		    {
 		        p = data;
 		    }
 			p.position 	=	0;
-		    //for (var i:int = 0; i < data.len; i++)
-		    while ( p.bytesAvailable > 0 )
-		    {
-		    	b	= p.readByte();
-		        // C char c = *p >> 4;
-		        c = b >> 4 ; 
-		
-		        if (c <= 9)
-		            c += 0x30;
-		        else
-		            c += 0x41 - 10;
-		            
-		        // C buf[idx++] = c;
-		        ret.writeByte( c );
-		
-		        c = b & 0x0f;
-		        if (c <= 9)
-		            c += 0x30;
-		        else
-		            c += 0x41 - 10;
-		        // C buf[idx++] = c;
-		        ret.writeByte( c );
-		
-		        if ( ret.position > HPDF_Consts.HPDF_TEXT_DEFAULT_LEN - 2)
-		        {
-		            //ret = HPDF_Stream_Write (stream, (HPDF_BYTE *)buf, idx);
-		            HPDF_Stream_Write( ret ); 
-		            /*if (ret != HPDF_OK) {
-		                if (flg)
-		                    HPDF_FreeMem (stream->mmgr, pbuf);
-		                return ret;
-		            }
-		            */
-		            ret = new ByteArray(); 
-		        }
-		    }
-
+		  
+			HPDF_Utils.bytesToHex( ret, p ); 
+			
 	   		if (ret.position > 0) 
-	   		{
-		        HPDF_Stream_Write ( ret );
-		    }
-		
-		    /*if (flg)
-		        HPDF_FreeMem (stream->mmgr, pbuf);*/
-		    return ;
+	   		    HPDF_Stream_Write ( ret );
 	    }
 	    
 	    public	function	HPDF_Stream_Write( data : ByteArray ) :void
 	    {
 	    	WriteFunc( data ); 
 	    }
+		
+		
 	    public	function	HPDF_Stream_WriteEscapeText ( text : String, encoder:HPDF_Encoder ) : void
 	    {
 	    	trace((" HPDF_Stream_WriteEscapeText"));
@@ -697,20 +665,20 @@ package com.fxpdf.streams
 		        {
 		            trace((" HPDF_Dict_Write obj=%p skipped obj_id=0x%08X\n")) ; 
 		                    //element->value, (HPDF_UINT)header->obj_id));
-		        } else
+		        } 
+				else
 		        {
 		            HPDF_Stream_WriteEscapeName (element.key);
 		            
 		            HPDF_Stream_WriteStr (" ");
 		            
-		
 		            HPDF_Obj_Write (element.value, e);
 		            
 		            HPDF_Stream_WriteStr ( HPDF_Utils.ParseString("\\012") );
 		        }
 		    }
 
-		    if (dict.writeFn)
+		    if (dict.writeFn != null )
 		    {
 		        dict.writeFn (this);
 			}
@@ -738,8 +706,8 @@ package com.fxpdf.streams
 		      HPDF_Stream_WriteStr ( HPDF_Utils.ParseString( "\\012stream\\015\\012") ) ; 
 	          // TODO strptr = stream.size;
 
-		      /* TODO  if (e)
-		            HPDF_Encrypt_Reset (e); */
+		     if (e)
+		       e.HPDF_Encrypt_Reset (); 
 			 var strptr : int = size ; 
 	         HPDF_Stream_WriteToStream ( dict.stream, dict.filter, e);
 	            
@@ -749,7 +717,7 @@ package com.fxpdf.streams
 	    }
 
 		    /* 2006.08.13 add. */
-		    if ( dict.afterWriteFn )
+		    if ( dict.afterWriteFn  != null  )
 		    {
 		        dict.afterWriteFn (this );
 		    }
@@ -774,6 +742,8 @@ package com.fxpdf.streams
 		    HPDF_BYTE ebuf[HPDF_STREAM_BUF_SIZ];
 		    HPDF_BOOL flg;
 */		
+			var ebuf		:ByteArray = HPDF_Utils.createByteArray( HPDF_Conf.HPDF_STREAM_BUF_SIZ );
+			var buf			:ByteArray = HPDF_Utils.createByteArray( HPDF_Conf.HPDF_STREAM_BUF_SIZ );
 		    trace(" HPDF_Stream_WriteToStream");
 		
 		    
@@ -792,14 +762,15 @@ package com.fxpdf.streams
 	        var size:uint = HPDF_Conf.HPDF_STREAM_BUF_SIZ;
 	        
 	
-	        var buf : ByteArray	=	src.HPDF_Stream_Read ( src.HPDF_Stream_Size() );
+	        buf =	src.HPDF_Stream_Read ( src.HPDF_Stream_Size() );
 			if ( buf.length == 0 ) 
 				return ; 
 	        flg = true; 
 	
 	       if (e) {
-	          /* TODO  HPDF_Encrypt_CryptBuf (e, buf, ebuf, size);
-	            ret = HPDF_Stream_Write(dst, ebuf, size);*/
+			    ebuf = HPDF_Utils.createByteArray( buf.length );
+	         	e.HPDF_Encrypt_CryptBuf ( buf, ebuf ,buf.length );
+	            HPDF_Stream_Write( ebuf);
 	        } else { 
 	           HPDF_Stream_Write(buf);
 	        }

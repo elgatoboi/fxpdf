@@ -269,6 +269,20 @@ package com.fxpdf.dict
 	    HPDF_Dict_Add (name, new HPDF_String(value,encoder));
 	}
 	
+	public function	HPDF_Info_GetInfoAttr ( type:int ):String
+	{
+		var name : String = InfoTypeToName (type);
+
+		trace(" HPDF_Info_GetInfoAttr");
+		
+		var obj:Object = HPDF_Dict_GetItem (name, HPDF_Obj_Header.HPDF_OCLASS_STRING);
+		
+		if (!obj)
+			return null;
+		else
+			return obj.value; 
+	}
+	
 	public	function	InfoTypeToName  ( type : int) : String
 	{
 	    return HPDF_INFO_ATTR_NAMES[type] as String;

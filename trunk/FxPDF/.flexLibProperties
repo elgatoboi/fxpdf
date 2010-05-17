@@ -100,6 +100,10 @@
     <classEntry path="com.fxpdf.objects.HPDF_Obj_Header"/>
     <classEntry path="com.fxpdf.HPDF_Xref_Entry"/>
     <classEntry path="com.fxpdf.xref.HPDF_Xref"/>
+    <classEntry path="com.fxpdf.encrypt.HPDF_EncryptDict"/>
+    <classEntry path="com.fxpdf.encrypt.HPDF_MD5_CTX"/>
+    <classEntry path="com.fxpdf.encrypt.HPDF_ARC4_Ctx"/>
+    <classEntry path="com.fxpdf.types.HPDF_EncryptMode"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

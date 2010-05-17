@@ -25,6 +25,8 @@ package com.fxpdf.doc
 	import com.fxpdf.dict.HPDF_Outline;
 	import com.fxpdf.encoder.HPDF_BasicEncoder;
 	import com.fxpdf.encoder.HPDF_Encoder;
+	import com.fxpdf.encrypt.HPDF_Encrypt;
+	import com.fxpdf.encrypt.HPDF_EncryptDict;
 	import com.fxpdf.error.HPDF_Error;
 	import com.fxpdf.font.HPDF_Font;
 	import com.fxpdf.font.HPDF_FontAttr;
@@ -35,7 +37,10 @@ package com.fxpdf.doc
 	import com.fxpdf.font.HPDF_Type1FontDefAttr;
 	import com.fxpdf.font.ttf.HPDF_FontDef_TT;
 	import com.fxpdf.font.type1.HPDF_FontDef_Type1;
+	import com.fxpdf.objects.HPDF_Array;
+	import com.fxpdf.objects.HPDF_Binary;
 	import com.fxpdf.objects.HPDF_List;
+	import com.fxpdf.objects.HPDF_Obj_Header;
 	import com.fxpdf.objects.HPDF_Pages;
 	import com.fxpdf.page.HPDF_Page;
 	import com.fxpdf.streams.HPDF_MemStream;
@@ -46,6 +51,7 @@ package com.fxpdf.doc
 	import com.fxpdf.types.enum.HPDF_InfoType;
 	import com.fxpdf.types.enum.HPDF_PdfVer;
 	import com.fxpdf.xref.HPDF_Xref;
+
 	//import flash.utils.ByteArray;
 	
 	/** 
@@ -68,7 +74,7 @@ package com.fxpdf.doc
 		public	static	const	HPDF_MINOR_VERSION  : Number = 1;
 		public	static	const	HPDF_BUGFIX_VERSION  : Number = 0  ;
 		public	static	const	HPDF_EXTRA_VERSION : String = "";
-		public	static	const	HPDF_VERSION_TEXT  : String = "2.1.0";
+		public	static	const	HPDF_VERSION_TEXT  : String = "2.0.8";
 		public	static	const	HPDF_VERSION_ID : Number =  20100 ;         
 		public	static	const	HPDF_SIG_BYTES : Number	=	 0x41504446 ; 
 		/* local variables */
@@ -111,6 +117,11 @@ package com.fxpdf.doc
 		
 		
 		public	var outlines : HPDF_Outline ; 
+		
+		/** Encrypt **/
+		public var encryptOn	: Boolean; 
+		public var encryptDict	: HPDF_EncryptDict;
+		
 		/** C VARIABLES *.
 		  HPDF_UINT32     sig_bytes;
 	    HPDF_PDFVer     pdf_version;
@@ -136,11 +147,8 @@ package com.fxpdf.doc
 	
 	    HPDF_Encoder      cur_encoder;
 	
-	    HPDF_BOOL         compression_mode;
-	
-	    HPDF_BOOL         encrypt_on;
-	    HPDF_EncryptDict  encrypt_dict;
-	
+	    */
+	    /*
 	    HPDF_Encoder      def_encoder;
 	
 	    HPDF_UINT         page_per_pages;
@@ -234,7 +242,7 @@ package com.fxpdf.doc
 		    		    
 		    curPages = rootPages;
 		
-		    var	ptr 			: String = "FxPDF.com Library " ;
+		    var	ptr 			: String = "Haru Free PDF Library " ;
 		    var version 		: String = HPDF_GetVersion ();
 			
 		    ptr += version ; 
@@ -390,22 +398,47 @@ package com.fxpdf.doc
 	    InternalSaveToStream ( stream );
 	}
 	
+	private function HPDF_Doc_PrepareEncryption  ():void
+	{
+		var e:HPDF_Encrypt	=	 encryptDict.HPDF_EncryptDict_GetAttr();
+		
+		var id : HPDF_Array;
+		
+		
+		encryptDict.HPDF_EncryptDict_Prepare (info,xref);
+		
+		/* reset 'ID' to trailer-dictionary */
+		id = trailer.HPDF_Dict_GetItem ("ID", HPDF_Obj_Header.HPDF_OCLASS_ARRAY) as HPDF_Array;
+		if ( id == null )
+		{
+			id = new HPDF_Array ();
+			
+			trailer.HPDF_Dict_Add ( "ID", id);
+		} else
+			id.HPDF_Array_Clear ();
+		
+		trace("encrypt id  " + e.encryptId[0].toString() + " " + e.encryptId[1].toString() );
+		id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId) ) ; //, HPDF_ID_LEN) );
+		
+		id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId )) ; // , HPDF_ID_LEN) );
+	}
+	
 	public	function	InternalSaveToStream  ( stream  :HPDF_Stream  ) : void
 	{
 	    WriteHeader( stream );
 	    /* prepare trailer */
 	    PrepareTrailer ();
 	    /* prepare encription */
-	    /*if (pdf->encrypt_on) {
-	        HPDF_Encrypt e= HPDF_EncryptDict_GetAttr (pdf->encrypt_dict);
+	    if (encryptOn)
+		{
+	        var e:HPDF_Encrypt = encryptDict. HPDF_EncryptDict_GetAttr ();
 	
-	        if ((ret = HPDF_Doc_PrepareEncryption (pdf)) != HPDF_OK)
-	            return ret;
+	        HPDF_Doc_PrepareEncryption ();
 	
-	        if ((ret = HPDF_Xref_WriteToStream (pdf->xref, stream, e)) != HPDF_OK)
-	            return ret;
-	    } else {*/
-	    xref.HPDF_Xref_WriteToStream (stream, null);
+	        xref.HPDF_Xref_WriteToStream (stream, e);
+	    } 
+		else 
+	    	xref.HPDF_Xref_WriteToStream (stream, null);
 	}
 	
 	
@@ -800,6 +833,42 @@ package com.fxpdf.doc
 			
 		}
 		
+	
+		public function	HPDF_SetPassword  ( ownerPass : String, userPass : String ) :void
+		{
+			trace (" HPDF_SetPassword");
+			
+			if (!HPDF_HasDoc ())
+				throw new HPDF_Error("HPDF_SetPassword - invalid document");
+			
+			if (!encryptDict)
+				encryptDict = new HPDF_EncryptDict ( xref );
+			
+			encryptDict.HPDF_EncryptDict_SetPassword (ownerPass, userPass);
+			
+			HPDF_Doc_SetEncryptOn();
+			
+		}
+		
+		
+		public function HPDF_Doc_SetEncryptOn():void
+		{
+			trace (" HPDF_Doc_SetEncryptOn\n");
+			
+			if ( encryptOn ) 
+					return ; 
+			
+			if (!encryptDict) 
+				throw new HPDF_Error( "HPDF_Doc_SetEncryptOn",HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND,0);
+			
+			if ( encryptDict.header.objId == HPDF_Obj_Header.HPDF_OTYPE_NONE)
+				xref.HPDF_Xref_Add ( encryptDict);
+			
+			trailer.HPDF_Dict_Add ("Encrypt", encryptDict);
+			
+			encryptOn = true; 
+
+		}
 
 
 	 

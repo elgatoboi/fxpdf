@@ -20,10 +20,12 @@ package com.fxpdf.page
 	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.HPDF_Utils;
 	import com.fxpdf.dict.HPDF_Dict;
+	import com.fxpdf.dict.HPDF_DictStream;
 	import com.fxpdf.error.HPDF_Error;
 	import com.fxpdf.font.HPDF_Font;
 	import com.fxpdf.gstate.HPDF_ExtGState;
 	import com.fxpdf.gstate.HPDF_GState;
+	import com.fxpdf.image.HPDF_Image;
 	import com.fxpdf.objects.HPDF_Array;
 	import com.fxpdf.objects.HPDF_Name;
 	import com.fxpdf.objects.HPDF_Obj_Header;
@@ -59,6 +61,7 @@ package com.fxpdf.page
 		private var pathFunctions : HPDF_Page_PathFunctions;  
 		private var colorFunctions : HPDF_PageColorFunctions ; 
 		private var combinedFunctions : HPDF_Page_CombinedFunctions ; 
+		private var imageFunctions		:HPDF_Page_ImageFunctions;
 		
 		private	static const HPDF_INHERITABLE_ENTRIES:Array = [
                         "Resources",
@@ -70,13 +73,14 @@ package com.fxpdf.page
 		public function HPDF_Page( xref : HPDF_Xref )
 		{
 			super() ;
-			textFunctions	=	new HPDF_Page_TextFunctions( this );
-			sizeFunctions	=	new HPDF_Page_SizeFunctions( this ); 
-			drawFunctions	=	new HPDF_Page_DrawFunctions( this ); 
-			gstateFunctions	=	new HPDF_Page_GStateFunctions( this );
-			pathFunctions	=	new HPDF_Page_PathFunctions( this );
-			colorFunctions	=	new HPDF_PageColorFunctions( this );
+			textFunctions		=	new HPDF_Page_TextFunctions( this );
+			sizeFunctions		=	new HPDF_Page_SizeFunctions( this ); 
+			drawFunctions		=	new HPDF_Page_DrawFunctions( this ); 
+			gstateFunctions		=	new HPDF_Page_GStateFunctions( this );
+			pathFunctions		=	new HPDF_Page_PathFunctions( this );
+			colorFunctions		=	new HPDF_PageColorFunctions( this );
 			combinedFunctions	=	new HPDF_Page_CombinedFunctions( this );
+			imageFunctions		=	new HPDF_Page_ImageFunctions( this );
 			
     		trace(" HPDF_Page_New");
 
@@ -96,7 +100,7 @@ package com.fxpdf.page
 		    
 		    var	g : HPDF_GState	= new HPDF_GState( null ); 
 		    pageAttr.gstate		= new HPDF_GState( null ) ;
-		    pageAttr.contents	= HPDF_Dict.HPDF_DictStream_New ( xref );
+		    pageAttr.contents	= new HPDF_DictStream( xref ) ;
 
 		    if (!pageAttr.gstate || !pageAttr.contents)
 		        return ;
@@ -654,12 +658,17 @@ package com.fxpdf.page
 			combinedFunctions.InternalArc(x,y, ray, ang1, ang2, contFlg);
 		}
 		
-		public function HPDF_Page_DrawImage( ) : void
+		public function HPDF_Page_DrawImage( image:HPDF_Image, x:Number, y:Number, width:Number, height:Number ) : void
 		{
-			//TODO 
+			imageFunctions.HPDF_Page_DrawImage( image, x, y, width, height );
 		}
 		
 		
+		
+		public function HPDF_Page_ExecuteXObject( obj :HPDF_Dict ):void
+		{
+			imageFunctions.HPDF_Page_ExecuteXObject( obj );
+		}
 		
 		
 		

@@ -871,6 +871,39 @@ package com.fxpdf.doc
 		}
 
 
+		
+		/**
+		 * Loads PNG Image from ByteArray 
+		 * */
+		public function HPDF_LoadPngImageFromByteArray( source :ByteArray ) :HPDF_PngImage
+		{
+			
+			trace("HPDF_LoadPngImageFromByteArray");
+			
+			// C png_byte header[HPDF_PNG_BYTES_TO_CHECK];
+			var header 			:ByteArray  = new ByteArray;
+			//var len				:uint = HPDF_PNG_BYTES_TO_CHECK;
+			
+			
+			trace (" HPDF_Image_LoadPngImage");
+			
+			source.position = 0;
+			//source.readBytes( header, 0, len );
+			//HPDF_Stream_Read (png_data, header, &len);
+			/*if ( png_sig_cmp (header, (png_size_t)0, HPDF_PNG_BYTES_TO_CHECK) ) { 
+			throw new HPDF_Error("HPDF_LoadPngImageFromByteArray", HPDF_Error.HPDF_INVALID_PNG_IMAGE );
+			}*/
+			
+			//image = HPDF_DictStream_New (mmgr, xref);
+			var image 	:HPDF_PngImage = new HPDF_PngImage( this.xref, source,HPDF_ColorSpace.HPDF_CS_DEVICE_RGB );
+			
+			//image.LoadPngData ( source );
+			
+			if ( compressionMode & HPDF_Consts.HPDF_COMP_IMAGE)
+				image.filter = HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE;
+			
+			return image;
+		}
 	 
 
  

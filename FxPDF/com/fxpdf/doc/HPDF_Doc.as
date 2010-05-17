@@ -37,6 +37,7 @@ package com.fxpdf.doc
 	import com.fxpdf.font.HPDF_Type1FontDefAttr;
 	import com.fxpdf.font.ttf.HPDF_FontDef_TT;
 	import com.fxpdf.font.type1.HPDF_FontDef_Type1;
+	import com.fxpdf.image.HPDF_PngImage;
 	import com.fxpdf.objects.HPDF_Array;
 	import com.fxpdf.objects.HPDF_Binary;
 	import com.fxpdf.objects.HPDF_List;
@@ -46,6 +47,7 @@ package com.fxpdf.doc
 	import com.fxpdf.streams.HPDF_MemStream;
 	import com.fxpdf.streams.HPDF_Stream;
 	import com.fxpdf.types.HPDF_PageMode;
+	import com.fxpdf.types.enum.HPDF_ColorSpace;
 	import com.fxpdf.types.enum.HPDF_EncoderType;
 	import com.fxpdf.types.enum.HPDF_FontDefType;
 	import com.fxpdf.types.enum.HPDF_InfoType;

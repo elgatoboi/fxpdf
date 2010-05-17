@@ -653,18 +653,13 @@ package com.fxpdf.streams
 		    {
 		       var element: HPDF_DictElement = dict.list[i];
 		       var header: HPDF_Obj_Header	=	element.value.header;
-		        //HPDF_Obj_Header *header = (HPDF_Obj_Header *)(element->value);
 		
 		        if (!element.value)
-		        {
-		          //  return HPDF_SetError (dict->error, HPDF_INVALID_OBJECT, 0);
-		          throw new HPDF_Error( "HPDF_Dict_Write", HPDF_Error.HPDF_INVALID_OBJECT, 0 ) ;  
-		        }
+			          throw new HPDF_Error( "HPDF_Dict_Write", HPDF_Error.HPDF_INVALID_OBJECT, 0 ) ;  
 		
 		        if  (header.objId & HPDF_Obj_Header.HPDF_OTYPE_HIDDEN)
 		        {
 		            trace((" HPDF_Dict_Write obj=%p skipped obj_id=0x%08X\n")) ; 
-		                    //element->value, (HPDF_UINT)header->obj_id));
 		        } 
 				else
 		        {
@@ -748,7 +743,7 @@ package com.fxpdf.streams
 		
 		    
 			
-			if (filter & HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE)
+			if (filter & HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE )
 				return this.HPDF_Stream_WriteToStreamWithDeflate (src, e);
 			 
 		
@@ -930,7 +925,13 @@ package com.fxpdf.streams
 			  }
 			  
 			  err=zstream.deflateEnd();      
-			  attr.buf.writeBytes( compr, 0,zstream.total_out);
+			  if (e) { 
+				  var ebuf:ByteArray = new ByteArray;
+				  e.HPDF_Encrypt_CryptBuf ( compr, ebuf, zstream.total_out);
+				  attr.buf.writeBytes( ebuf,0,ebuf.length);   
+			  }
+			  else
+			  	attr.buf.writeBytes( compr, 0,zstream.total_out);
 			    
 			  
 		  }

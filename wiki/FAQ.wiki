@@ -5,10 +5,10 @@
 
 Only standard PDF fonts and TTF fonts are supported.
 
-= TO-DO list =
+= Added =
 
-We are working currently on following standard libharu library features:
+18.04.2010
 
   * Encryption
   * Compression
-  * Image embeding (pdf, jpg)
+  * Image embeding (png)

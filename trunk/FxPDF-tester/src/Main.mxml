@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600">
+	<mx:Script>
+		<![CDATA[
+			import com.fxpdf.HPDF_Consts;
+			import com.fxpdf.doc.HPDF_Doc;
+			import com.fxpdf.font.HPDF_Font;
+			import com.fxpdf.image.HPDF_Image;
+			import com.fxpdf.page.HPDF_Page;
+			import com.fxpdf.streams.HPDF_MemStreamAttr;
+			import com.fxpdf.types.enum.HPDF_InfoType;
+			
+			import mx.controls.Alert;
+			import mx.core.ByteArrayAsset;
+			
+			
+			
+			[Embed(source="assets/arialuni.ttf", mimeType='application/octet-stream')]
+			public var fontArial:Class;      
+			
+			[Embed(source="assets/test.png", mimeType='application/octet-stream')]
+			public var imgAsset:Class;      
+
+			
+			public function onClick():void
+			{
+				var testText		: String = "This is an encrypt document example.";
+				var pdfDoc 			: HPDF_Doc;
+				var page   			: HPDF_Page; 
+				
+				pdfDoc = new HPDF_Doc( ) ; 
+				
+				/* set compression mode */
+				//pdfDoc.HPDF_SetCompressionMode (HPDF_Consts.HPDF_COMP_ALL);
+				
+				
+				//var font : HPDF_Font = pdfDoc.HPDF_GetFont ( "Helvetica", null);
+				page = pdfDoc.HPDF_AddPage() ;
+				var imgBA:ByteArrayAsset = new imgAsset();
+				var image : HPDF_Image = pdfDoc.HPDF_LoadPngImageFromByteArray( imgBA ) ; 
+				
+				// var fontArialByte:ByteArrayAsset = new fontArial();
+//				var fontName:String = pdfDoc.HPDF_LoadTTFontFromStream( fontArialByte, true );
+				
+	//			Alert.show("Loaded font : " + fontName );
+		//		var font:HPDF_Font = pdfDoc.HPDF_GetFont( fontName, "KOI8-R"); 
+				
+				pdfDoc.HPDF_SetInfoAttr( HPDF_InfoType.HPDF_INFO_AUTHOR , "AUTOR");
+				
+				//page.HPDF_Page_BeginText ();
+				
+				//page.HPDF_Page_SetFontAndSize ( font,20);
+				//var tw:Number = page.HPDF_Page_TextWidth ( testText);
+				
+				//page.HPDF_Page_TextOut ( 0,0, testText);
+				/*page.HPDF_Page_MoveTextPos ( 100,500);
+				page.HPDF_Page_ShowText ("ABC"); 
+				page.HPDF_Page_EndText ();
+			
+				pdfDoc.HPDF_SetPassword( "owner","user");
+			*/
+				page.HPDF_Page_DrawImage ( image, 0,0, image.width, image.height ); 
+				pdfDoc.HPDF_SaveToStream();  
+				var memAttr : HPDF_MemStreamAttr	=	pdfDoc.stream.attr	as HPDF_MemStreamAttr;
+				memAttr.buf.position	=	0;
+				
+				/** SAVING A FILE IN AIR */
+				/*var fs : FileStream = new FileStream();
+				var fl : File	=	File.desktopDirectory.resolvePath( name + ".pdf" );
+				//open file in write mode
+				fs.open( fl, FileMode.WRITE );
+				//write bytes from the byte array
+				fs.writeBytes( memAttr.buf );   
+				//close the file
+				fs.close(); */
+				
+				var fileRef:FileReference = new FileReference();
+				fileRef.save( memAttr.buf, name + ".pdf" );
+			}
+			
+		]]>
+		
+	</mx:Script>
+	
+	<mx:Button label="Test" click="onClick();" />
+</mx:Application>

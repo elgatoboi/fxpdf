@@ -108,6 +108,15 @@
     <classEntry path="com.fxpdf.types.enum.HPDF_WhenceMode"/>
     <classEntry path="com.fxpdf.types.enum.HPDF_WritingMode"/>
     <classEntry path="com.fxpdf.xref.HPDF_Xref"/>
+    <classEntry path="com.fxpdf.image.ByteArrayInputStream"/>
+    <classEntry path="com.fxpdf.image.Bytes"/>
+    <classEntry path="com.fxpdf.image.IElement"/>
+    <classEntry path="com.fxpdf.image.DataInputStream"/>
+    <classEntry path="com.fxpdf.image.FilterInputStream"/>
+    <classEntry path="com.fxpdf.image.InputStream"/>
+    <classEntry path="com.fxpdf.image.ByteBuffer"/>
+    <classEntry path="com.fxpdf.image.NumberUtils"/>
+    <classEntry path="com.fxpdf.image.InflaterInputStream"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

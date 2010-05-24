@@ -18,6 +18,9 @@ limitations under the License.
 package com.fxpdf.objects
 {
 	import com.fxpdf.encoder.HPDF_Encoder;
+	import com.fxpdf.streams.HPDF_Stream;
+	
+	import flash.utils.ByteArray;
 	
 	public class HPDF_String extends HPDF_Object
 	{
@@ -38,6 +41,20 @@ package com.fxpdf.objects
 			this.encoder	=	encoder ;
 			this.header.objClass	=	HPDF_Obj_Header.HPDF_OCLASS_STRING;
 			 
+		}
+		
+		public static function fromByteArray( ba:ByteArray):HPDF_String
+		{
+			
+			var c:String = "";
+			
+			for( var k:int = 0; k < ba.length; k++ )
+			{
+				var byte: int = ba[k];
+				c += String.fromCharCode( byte & 0xff );
+			}
+			var ret :HPDF_String = new HPDF_String( c );
+			return ret; 
 		}
 
 	}

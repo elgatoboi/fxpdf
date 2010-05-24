@@ -311,7 +311,8 @@ package com.fxpdf.streams
 				bytes.writeUTFBytes( obj.value ); 
 	            HPDF_Stream_WriteBinary ( bytes, e );
 				HPDF_Stream_WriteStr (">");
-	        } else
+	        } 
+			else
 	        {
 	            HPDF_Stream_WriteEscapeText ( obj.value, obj.encoder );
 	            return ; 
@@ -389,17 +390,17 @@ package com.fxpdf.streams
 		        HPDF_Stream_WriteStr ( "<>");
 		        return ; 
 		    }
-		
-		    HPDF_Stream_WriteStr ("<") ;
+			if ( obj.writeTag ) 
+		    	HPDF_Stream_WriteStr ("<") ;
 		        
 		
 		    if (e)
 		     e.HPDF_Encrypt_Reset(); 
 			
 			// var buf:ByteArray = HPDF_Utils.VectorToByteArray( obj.value );
-		    HPDF_Stream_WriteBinary ( obj.value,  e);
-		
-		    HPDF_Stream_WriteStr (">"); 
+		    HPDF_Stream_WriteBinary ( obj.value,  e, obj.toHex);
+			if ( obj.writeTag )
+		    	HPDF_Stream_WriteStr (">"); 
 	    	
 	    }
 	    
@@ -412,7 +413,7 @@ package com.fxpdf.streams
 		
 		
 	    /** Write binary data **/
-	    public	function	HPDF_Stream_WriteBinary  ( data : ByteArray , e : HPDF_Encrypt) : void
+	    public	function	HPDF_Stream_WriteBinary  ( data : ByteArray , e : HPDF_Encrypt, toHex:Boolean =true) : void
 	    {
 		    /* C char buf[HPDF_TEXT_DEFAULT_LEN];
 		    HPDF_BYTE ebuf[HPDF_TEXT_DEFAULT_LEN];
@@ -454,11 +455,14 @@ package com.fxpdf.streams
 		        p = data;
 		    }
 			p.position 	=	0;
-		  
-			HPDF_Utils.bytesToHex( ret, p ); 
-			
-	   		if (ret.position > 0) 
-	   		    HPDF_Stream_Write ( ret );
+		  	if ( toHex ) { 
+				HPDF_Utils.bytesToHex( ret, p ); 
+				
+		   		if (ret.position > 0) 
+		   		    HPDF_Stream_Write ( ret );
+			}
+			else
+				HPDF_Stream_Write( data );
 	    }
 	    
 	    public	function	HPDF_Stream_Write( data : ByteArray ) :void

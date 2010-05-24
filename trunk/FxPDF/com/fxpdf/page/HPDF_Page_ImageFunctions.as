@@ -86,7 +86,6 @@ package com.fxpdf.page
 			if (!obj || obj.header.objClass != ( HPDF_Obj_Header.HPDF_OSUBCLASS_XOBJECT | HPDF_Obj_Header.HPDF_OCLASS_DICT))
 				throw new HPDF_Error("HPDF_Page_ExecuteXObject", HPDF_Error.HPDF_INVALID_OBJECT );
 			
-			
 			localName = HPDF_Page_GetXObjectName ( obj );
 			
 			if (!localName)

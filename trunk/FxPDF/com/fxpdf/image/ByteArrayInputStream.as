@@ -45,46 +45,85 @@
 */
 package com.fxpdf.image
 {
-	import com.fxpdf.HPDF_Utils;
-	import com.fxpdf.dict.HPDF_Dict;
-	import com.fxpdf.dict.HPDF_DictStream;
-	import com.fxpdf.error.HPDF_Error;
-	import com.fxpdf.objects.HPDF_Obj_Header;
-	import com.fxpdf.xref.HPDF_Xref;
-	
 	import flash.utils.ByteArray;
 
-	public class HPDF_Image extends HPDF_DictStream
+	public class ByteArrayInputStream implements InputStream
 	{
+		protected var buf: ByteArray;
+		protected var count: int;
+		protected var mark: int = 0;
+		protected var pos: int;
 		
-		public var width:int;
-		public var height:int;
-		public var resourceId:int;
-		public var n:int;
-		public var colorSpace 			: int;
-		public var bitsPerComponent:int = 8;
-		public var transparency:String;
-		public var parameters:String;
-		public var pal:String;
-		public var masked:Boolean;
-		public var ct:Number;
-		public var progressive:Boolean;
-		public var imageStream:ByteArray;
-		
-		
-		public function HPDF_Image( xref:HPDF_Xref )
+		public function ByteArrayInputStream( ins:ByteArray, offset: int = 0, lenght: int = 0 )
 		{
-			super( xref );
-			
-			header.objClass |= HPDF_Obj_Header.HPDF_OSUBCLASS_XOBJECT;
-			HPDF_Dict_AddName ( "Type", "XObject");
-			HPDF_Dict_AddName ( "Subtype", "Image");
-			
+			if ( lenght == 0 )
+				lenght = ins.length;
+			buf = ins;
+			pos = offset;
+			count = Math.min( offset + lenght, buf.length );
+			mark = offset;
 		}
 		
+		public function get size(): int
+		{
+			return count;
+		}
 		
+		public function get position(): int
+		{
+			return pos;
+		}
 		
+		public function readBytes( b: ByteArray, off: int, len: int ): int
+		{
+			if ( b == null )
+			{
+				throw new Error();
+			} else if ( off < 0 || len < 0 || len > b.length - off )
+			{
+				throw new Error();
+			}
+			
+			if ( pos >= count )
+			{
+				return -1;
+			}
+			
+			if ( pos + len > count )
+			{
+				len = count - pos;
+			}
+			
+			if ( len <= 0 )
+			{
+				return 0;
+			}
+			
+			buf.position = pos;
+			buf.readBytes( b, off, len );
+			
+			pos += len;
+			return len;
+		}
 		
+		public function readUnsignedByte(): int
+		{
+			return ( pos < count ) ? ( buf[ pos++ ] & 0xFF ) : -1;
+		}
 		
+		public function skip( n: Number ): Number
+		{
+			if ( pos + n > count )
+			{
+				n = count - pos;
+			}
+			
+			if ( n < 0 )
+			{
+				return 0;
+			}
+			pos += n;
+			return n;
+		}
 	}
 }

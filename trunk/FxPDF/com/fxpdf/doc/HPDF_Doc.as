@@ -244,7 +244,7 @@ package com.fxpdf.doc
 		    		    
 		    curPages = rootPages;
 		
-		    var	ptr 			: String = "Haru Free PDF Library " ;
+		    var	ptr 			: String = "FxPDF.com library " ;
 		    var version 		: String = HPDF_GetVersion ();
 			
 		    ptr += version ; 
@@ -389,7 +389,10 @@ package com.fxpdf.doc
 	
 	   if (!stream)
 	        stream = new HPDF_MemStream(); 
-	        
+	       
+	   // mod PC
+	   if (!encryptDict)
+		   encryptDict = new HPDF_EncryptDict ( xref );
 	
 	    if (!stream) // .HPDF_Stream_Validate ( ))
 	    {
@@ -430,13 +433,14 @@ package com.fxpdf.doc
 	    WriteHeader( stream );
 	    /* prepare trailer */
 	    PrepareTrailer ();
-	    /* prepare encription */
-	    if (encryptOn)
+	    
+	    var e:HPDF_Encrypt = encryptDict. HPDF_EncryptDict_GetAttr ();
+	
+	    HPDF_Doc_PrepareEncryption ();
+			
+		/* prepare encription */
+		if (encryptOn)
 		{
-	        var e:HPDF_Encrypt = encryptDict. HPDF_EncryptDict_GetAttr ();
-	
-	        HPDF_Doc_PrepareEncryption ();
-	
 	        xref.HPDF_Xref_WriteToStream (stream, e);
 	    } 
 		else 
@@ -463,6 +467,7 @@ package com.fxpdf.doc
     	trace (" PrepareTrailer");
 		trailer.HPDF_Dict_Add("Root", catalog );
 	    trailer.HPDF_Dict_Add("Info", info );
+	
 	 }
 	 public	function	HPDF_GetVersion( ) :String
 	 {
@@ -879,32 +884,7 @@ package com.fxpdf.doc
 		 * */
 		public function HPDF_LoadPngImageFromByteArray( source :ByteArray ) :HPDF_PngImage
 		{
-			
-			trace("HPDF_LoadPngImageFromByteArray");
-			
-			// C png_byte header[HPDF_PNG_BYTES_TO_CHECK];
-			var header 			:ByteArray  = new ByteArray;
-			//var len				:uint = HPDF_PNG_BYTES_TO_CHECK;
-			
-			
-			trace (" HPDF_Image_LoadPngImage");
-			
-			source.position = 0;
-			//source.readBytes( header, 0, len );
-			//HPDF_Stream_Read (png_data, header, &len);
-			/*if ( png_sig_cmp (header, (png_size_t)0, HPDF_PNG_BYTES_TO_CHECK) ) { 
-			throw new HPDF_Error("HPDF_LoadPngImageFromByteArray", HPDF_Error.HPDF_INVALID_PNG_IMAGE );
-			}*/
-			
-			//image = HPDF_DictStream_New (mmgr, xref);
-			var image 	:HPDF_PngImage = new HPDF_PngImage( this.xref, source,HPDF_ColorSpace.HPDF_CS_DEVICE_RGB );
-			
-			//image.LoadPngData ( source );
-			
-			if ( compressionMode & HPDF_Consts.HPDF_COMP_IMAGE)
-				image.filter = HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE;
-			
-			return image;
+			return HPDF_PngImage.LoadPngImageFromByteArray(this.xref, source ); 
 		}
 	 
 

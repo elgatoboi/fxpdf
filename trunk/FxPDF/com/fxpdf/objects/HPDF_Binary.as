@@ -24,6 +24,9 @@ package com.fxpdf.objects
 		
 		public	var	value 			:ByteArray;
 		
+		public var writeTag			:Boolean = true;
+		public var toHex			:Boolean = true; 
+		
 		public	function	get	len ( ) : uint
 		{
 			return value.length ; 

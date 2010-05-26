@@ -785,57 +785,24 @@ package com.fxpdf.image
 					{
 						
 						colorspaceTable = new HPDF_Array();
-						//colorspaceTable.HPDF_Array_Add( new HPDF_String("INDEXED") );
+						
 						colorspaceTable.HPDF_Array_AddName("Indexed");
-						//colorspaceTable.HPDF_Array_Add( new HPDF_String( getColorspace() ) );
+						
 						colorspaceTable.HPDF_Array_Add(  getColorspace() );
+						colorspaceTable.HPDF_Array_AddReal( (len/3 -1) );
 						
-						//colorspaceTable.HPDF_Array_AddReal( len/3 -1 );
-						 
-						
-						//var colortable	:ByteBuffer = new ByteBuffer;
 						var colortable		:ByteArray = new ByteArray;
-						//var colortable:HPDF_DictStream= new HPDF_DictStream(
 						
-						//var buf:ByteArray = (colortable.stream.attr as HPDF_MemStreamAttr).buf;
-						
-						colortable.writeUTFBytes( (len/3 -1).toString());
-						colortable.writeByte( '('.charCodeAt(0) ) ;
 						while ( ( len-- ) > 0 )
 						{
-							//colortable.pdf_core::append_i( ins.readUnsignedByte() );
-							//colortable.pdf_core::append_i( ins.readUnsignedByte() );
-							//var c:String = String.fromCharCode( ins.readUnsignedByte() & 0xff )
 							colortable.writeByte( ins.readUnsignedByte() );
-							//colortable.writeByte( c.charCodeAt(0));
-							
 						}
-						colortable.writeByte( ')'.charCodeAt(0) ) ;
-						//var colorBinary:HPDF_Binary = new HPDF_Binary( colortable );
-						var colorBinary:HPDF_String = HPDF_String.fromByteArray( colortable ); 
-						//colorBinary.toHex = false; 
-						//colorBinary.writeTag = false; 
-						 
-						//colorspace.add( new PdfString( colorTable = colortable.toByteArray() ) );
+						
+						var colorBinary:HPDF_Binary = new HPDF_Binary( colortable );
+
 						colorspaceTable.HPDF_Array_Add( colorBinary );
-						//additional.HPDF_Dict_Add( "ColorSpace", colorspace );
+						
 						additional.push( {name:"ColorSpace", obj:colorspaceTable } );
-						//additional.push( new HPDF_Dict() );
-						//additional.put( PdfName.COLORSPACE, colorspace );
-						
-						/*colorspace.add( PdfName.INDEXED );
-						colorspace.add( getColorspace() );
-						colorspace.add( new PdfNumber( len / 3 - 1 ) );
-						var colortable: ByteBuffer = new ByteBuffer();
-						
-						while ( ( len-- ) > 0 )
-						{
-							//colortable.pdf_core::append_i( ins.readUnsignedByte() );
-							colortable.pdf_core::append_i( ins.readUnsignedByte() );
-						}
-						colorspace.add( new PdfString( colorTable = colortable.toByteArray() ) );
-						additional.put( PdfName.COLORSPACE, colorspace );
-						*/
 					}
 					else
 					{

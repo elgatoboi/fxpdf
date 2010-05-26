@@ -49,7 +49,7 @@ package com.fxpdf.image
 
 	public class DataInputStream extends FilterInputStream
 	{
-		var bytearr: Bytes = new Bytes();
+		private var bytearr: Bytes = new Bytes();
 		
 		public function DataInputStream( stream: InputStream )
 		{

@@ -130,7 +130,7 @@ package com.fxpdf.image
 		 * @return a reference to this <CODE>ByteBuffer</CODE> object
 		 */
 		//pdf_core
-		function append_int( b: int ): ByteBuffer
+		public function append_int( b: int ): ByteBuffer
 		{
 			var newcount: int = count + 1;
 			

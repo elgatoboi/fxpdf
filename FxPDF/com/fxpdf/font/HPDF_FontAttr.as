@@ -35,7 +35,7 @@ package com.fxpdf.font
     	public	var	used		: Vector.<uint>;
     	
     	public	var	xref		: HPDF_Xref ; 
-    	public	var	descendantFont	: HPDF_Font ; 
+    	public	var	descendantFont	: HPDF_Dict ; 
     	public	var	mapStream	: HPDF_Dict; 
     	public	var	cmapStream	: HPDF_Dict; 
     	

@@ -18,7 +18,9 @@ limitations under the License.
 package com.fxpdf.encoder
 {
 	import com.fxpdf.error.HPDF_Error;
+	import com.fxpdf.objects.HPDF_List;
 	import com.fxpdf.streams.HPDF_Stream;
+	import com.fxpdf.types.HPDF_LineCap;
 	import com.fxpdf.types.HPDF_ParseText;
 	import com.fxpdf.types.enum.HPDF_BaseEncodings;
 	import com.fxpdf.types.enum.HPDF_ByteType;
@@ -64,6 +66,7 @@ package com.fxpdf.encoder
     	public	var	attr	: Object ; 
     	
     	public	var	sigBytes : Number ; 
+		public var initFn		: Function;
     	
 		public	static const HPDF_BUILTIN_ENCODINGS :Array = [
 		    new HPDF_BuiltinEncodingData(HPDF_ENCODING_FONT_SPECIFIC,HPDF_BaseEncodings.HPDF_BASE_ENCODING_FONT_SPECIFIC,null ), 
@@ -146,10 +149,7 @@ package com.fxpdf.encoder
 			//trace("ByteTypeFn default" );
 			return HPDF_ByteType.HPDF_BYTE_TYPE_SINGLE;
 		}
-		public	function	InitFn ( ) : void 
-		{
-			
-		}
+		
 		
 		public	function	HPDF_UnicodeToGryphName  ( unicode : uint) : String
 		{
@@ -189,10 +189,107 @@ package com.fxpdf.encoder
 		    
 		}
 		
+		
+		public	function	HPDF_CMapEncoder_ByteType( state : HPDF_ParseText ) : uint
+		{
+			trace (" HPDF_CMapEncoder_ByteType");
+			
+			if (state.index >= state.len)
+				return HPDF_ByteType.HPDF_BYTE_TYPE_UNKNOWN;
+			
+			
+			var attr : HPDF_CMapEncoderAttr =  this.attr as HPDF_CMapEncoderAttr;
+			
+			if (state.byteType == HPDF_ByteType.HPDF_BYTE_TYPE_LEAD) {
+				if (attr.isTrialByteFn (this, state.text[state.index]))
+					state.byteType = HPDF_ByteType.HPDF_BYTE_TYPE_TRIAL;
+				else
+					state.byteType = HPDF_ByteType.HPDF_BYTE_TYPE_UNKNOWN;
+			} 
+			else {
+				if (attr.isLeadByteFn (this, state.text[state.index]))
+					state.byteType = HPDF_ByteType.HPDF_BYTE_TYPE_LEAD;
+				else
+					state.byteType = HPDF_ByteType.HPDF_BYTE_TYPE_SINGLE;
+			}
+			
+			state.index++;
+			
+			return state.byteType;
+			
+		}
+		
+		
+		
+		public function HPDF_CMapEncoder_ToCID  ( code : uint) : uint
+		{
+			var l : uint = code & 0x00FF;
+			var h : uint = code >> 8;
+			
+			var attr:HPDF_CMapEncoderAttr = this.attr as HPDF_CMapEncoderAttr;
+			
+			return attr.cidMap[l][h];
+		}
+		
+		
+		public function	GBK_EUC_AddCodeSpaceRange () : void 
+		{
+			var code_space_range1:HPDF_CidRange_Rec  = new HPDF_CidRange_Rec(0x00, 0x80, 0);
+			var code_space_range2:HPDF_CidRange_Rec  = new HPDF_CidRange_Rec(0x8140, 0xFEFE, 0);
+			
+			this.HPDF_CMapEncoder_AddCodeSpaceRange ( code_space_range1);
+			this.HPDF_CMapEncoder_AddCodeSpaceRange ( code_space_range2);
+		}
+		
+		
+		public function	HPDF_CMapEncoder_AddCodeSpaceRange  (range : HPDF_CidRange_Rec ) : void 
+		{
+			var attr : HPDF_CMapEncoderAttr = this.attr as HPDF_CMapEncoderAttr;
+			
+			AddCidRainge ( range, attr.codeSpaceRange);
+		}
+
+			
+		public function HPDF_CMapEncoder_AddNotDefRange( range : HPDF_CidRange_Rec ) : void
+		{
+			
+			var attr : HPDF_CMapEncoderAttr = this.attr as HPDF_CMapEncoderAttr;
+			
+			AddCidRainge ( range, attr.notdefRange); 
+		}
+		
+		public function AddCidRainge( range : HPDF_CidRange_Rec, target  : HPDF_List ) :void
+		{
+			var prange		: HPDF_CidRange_Rec = new HPDF_CidRange_Rec( range.from, range.to_, range.cid );	
+			
+			target.HPDF_List_Add ( prange) ;
+		}
+
+		public function HPDF_CMapEncoder_SetUnicodeArray  ( array : Array ) : void
+		{
+			
+			var attr : HPDF_CMapEncoderAttr = this.attr as HPDF_CMapEncoderAttr;
+			var i : int = 0; 
+			var ar : HPDF_UnicodeMap;
+			ar =array[0] as HPDF_UnicodeMap;
+			if (array != null) {
+				while (ar.unicode != 0xffff && i < array.length) {
+					var l : uint = ar.code & 0x00FF;
+					var h : uint = ar.code >> 8;
+					
+					attr.unicodeMap[l][h] = ar.unicode;
+					i++;
+					if ( i < array.length )
+						ar =array[i] as HPDF_UnicodeMap;
+				}
+			}
+		}
+
+		
 		/** overridable functions **/
 		public	function	HPDF_Encoder_ToUnicode( code : uint ) : uint
 		{
-			throw new HPDF_Error("HPDF_Encoder_ToUnicode not implemented",0,0);
+			return null; 	
 		}
 	}
 

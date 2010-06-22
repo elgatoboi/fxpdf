@@ -20,6 +20,7 @@ package com.fxpdf.font
 	import com.fxpdf.dict.HPDF_Dict;
 	import com.fxpdf.encoder.HPDF_Encoder;
 	import com.fxpdf.error.HPDF_Error;
+	import com.fxpdf.font.ttf.HPDF_TTF_LongHorMetric;
 	import com.fxpdf.streams.HPDF_Stream;
 	import com.fxpdf.types.HPDF_Box;
 	import com.fxpdf.types.enum.HPDF_FontDefType;
@@ -81,6 +82,7 @@ package com.fxpdf.font
     	public	var	attr		: Object ; 
     
     
+		public  var initFn		: Function;
     
 		public function HPDF_FontDef()
 		{
@@ -96,10 +98,7 @@ package com.fxpdf.font
 			
 		}
 		
-		public	function	initFn ( ) : void
-		{
-			
-		}
+		
 		
 		
 		public	static	function	HPDF_Base14FontDef_New ( fontName : String ) : HPDF_FontDef
@@ -266,6 +265,33 @@ package com.fxpdf.font
 				attr.widths = null ; 
 			this.valid = false ; 
 			
+		}
+		
+		
+		
+		
+		/** **/
+		public function HPDF_TTFontDef_GetGidWidth( gid :uint ) : int 
+		{
+			var advanceWidth		: uint;
+			var hmetrics			: HPDF_TTF_LongHorMetric;
+			var attr				: HPDF_TTFontDefAttr = this.attr as HPDF_TTFontDefAttr;
+			
+			trace(" HPDF_TTFontDef_GetGidWidth");
+			
+			if ( gid >= attr.numGlyphs ) { 
+				trace(" HPDF_TTFontDef_GetGidWidth WARNING gid > " + 
+					"num_glyphs " + gid.toString() + " > " + attr.numGlyphs.toString() + "\n");
+				return missingWidth;
+			}
+			
+			hmetrics = attr.hMetric[gid];
+			
+			advanceWidth = hmetrics.advanceWidth * 1000 / attr.header.unitsPerEm;
+			
+			trace(" HPDF_TTFontDef_GetGidWidth gid=" + gid.toString()  + ", width=" + advanceWidth.toString() +"\n" );
+				
+			return advanceWidth;
 		}
 	}
 		

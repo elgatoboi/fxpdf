@@ -24,13 +24,16 @@ package com.fxpdf.doc
 	import com.fxpdf.dict.HPDF_Dict;
 	import com.fxpdf.dict.HPDF_Outline;
 	import com.fxpdf.encoder.HPDF_BasicEncoder;
+	import com.fxpdf.encoder.HPDF_CMapEncoder;
 	import com.fxpdf.encoder.HPDF_Encoder;
 	import com.fxpdf.encrypt.HPDF_Encrypt;
 	import com.fxpdf.encrypt.HPDF_EncryptDict;
 	import com.fxpdf.error.HPDF_Error;
+	import com.fxpdf.font.HPDF_CIDFontDef;
 	import com.fxpdf.font.HPDF_Font;
 	import com.fxpdf.font.HPDF_FontAttr;
 	import com.fxpdf.font.HPDF_FontDef;
+	import com.fxpdf.font.HPDF_FontDef_CNS;
 	import com.fxpdf.font.HPDF_TTFont;
 	import com.fxpdf.font.HPDF_Type0Font;
 	import com.fxpdf.font.HPDF_Type1Font;
@@ -653,7 +656,8 @@ package com.fxpdf.doc
 	            /* if encoder is uninitialize, call init_fn() */
 	            if ( encoder.type == HPDF_EncoderType.HPDF_ENCODER_TYPE_UNINITIALIZED)
 	            {
-	            	encoder.InitFn() ; 
+					if ( encoder.initFn != null ) 
+						encoder.initFn( encoder );
 	            }
 	
 	            return encoder;
@@ -676,7 +680,7 @@ package com.fxpdf.doc
 	        {
 	            if (def.type == HPDF_FontDefType.HPDF_FONTDEF_TYPE_UNINITIALIZED)
 	            {
-	                def.initFn(); 
+	                def.initFn( def ); 
 	            }
 	
 	            return def;
@@ -887,6 +891,129 @@ package com.fxpdf.doc
 			return HPDF_PngImage.LoadPngImageFromByteArray(this.xref, source ); 
 		}
 	 
+		
+		public function HPDF_Doc_RegisterEncoder  ( encoder :HPDF_Encoder ):void
+		{
+			if (HPDF_Doc_FindEncoder ( encoder.name) != null) {
+				throw new HPDF_Error("HPDF_Doc_RegisterEncoder", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
+			}
+			
+			this.encoderList.HPDF_List_Add( encoder );
+			
+		}
+		
+		public function HPDF_Doc_RegisterFontDef  ( fontdef:HPDF_FontDef ):void
+		{
+			
+			trace (" HPDF_Doc_RegisterFontDef");
+			
+		
+			if (HPDF_Doc_FindFontDef ( fontdef.baseFont) != null) {
+				throw new HPDF_Error("HPDF_Doc_RegisterFontDef", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
+			}
+			
+			this.fontdefList.HPDF_List_Add( fontdef );
+			
+		}
+		
+
+		
+		public function HPDF_UseCNSEncodings():void
+		{
+			trace("HPDF_UseCNSEncodings");
+			
+			var encoder		:HPDF_Encoder;
+			
+			/* Microsoft Code Page 936 (lfCharSet 0x86) GBK encoding */
+			encoder = new HPDF_CMapEncoder ( "GBK-EUC-H", HPDF_CMapEncoder.GBK_EUC_H_Init);
+			HPDF_Doc_RegisterEncoder( encoder );
+			
+			/*if ((ret = HPDF_Doc_RegisterEncoder (pdf, encoder)) != HPDF_OK)
+				return ret;
+			*/
+			/* Microsoft Code Page 936 (lfCharSet 0x86) GBK encoding
+			* (vertical writing) */
+			/* TODO encoder = HPDF_CMapEncoder_New (pdf->mmgr,  "GBK-EUC-V",
+				GBK_EUC_V_Init);
+			
+			if ((ret = HPDF_Doc_RegisterEncoder (pdf, encoder)) != HPDF_OK)
+				return ret;
+			
+			/* EUC-CN encoding */
+			/* TODO encoder = HPDF_CMapEncoder_New (pdf->mmgr,  "GB-EUC-H",
+				GB_EUC_H_Init);
+			
+			if ((ret = HPDF_Doc_RegisterEncoder (pdf, encoder)) != HPDF_OK)
+				return ret;
+			
+			/* EUC-CN encoding (vertical writing) */
+			/* TODO encoder = HPDF_CMapEncoder_New (pdf->mmgr,  "GB-EUC-V",
+				GB_EUC_V_Init);
+			
+			if ((ret = HPDF_Doc_RegisterEncoder (pdf, encoder)) != HPDF_OK)
+				return ret;
+			*/
+		}
+		
+		public function HPDF_UseCNSFonts   ():void
+		{
+			var fontdef				:HPDF_FontDef;
+			
+			/* SimSun */
+			fontdef = new HPDF_CIDFontDef ( "SimSun", HPDF_FontDef_CNS.SimSun_Init);
+			HPDF_Doc_RegisterFontDef( fontdef );
+			
+			
+			/*if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			*/
+			/* TODO fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimSun,Bold",
+				SimSun_Bold_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimSun,Italic",
+				SimSun_Italic_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimSun,BoldItalic",
+				SimSun_BoldItalic_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			/* SimHei */
+			/*fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimHei",
+				SimHei_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimHei,Bold",
+				SimHei_Bold_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimHei,Italic",
+				SimHei_Italic_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			fontdef = HPDF_CIDFontDef_New (pdf->mmgr,  "SimHei,BoldItalic",
+				SimHei_BoldItalic_Init);
+			
+			if ((ret = HPDF_Doc_RegisterFontDef (pdf, fontdef)) != HPDF_OK)
+				return ret;
+			
+			return HPDF_OK;
+			*/
+		}
+		
 
  
 }

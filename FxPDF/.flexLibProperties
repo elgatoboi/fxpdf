@@ -117,6 +117,16 @@
     <classEntry path="com.fxpdf.image.ByteBuffer"/>
     <classEntry path="com.fxpdf.image.NumberUtils"/>
     <classEntry path="com.fxpdf.image.InflaterInputStream"/>
+    <classEntry path="com.fxpdf.encoder.HPDF_CMapEncoder"/>
+    <classEntry path="com.fxpdf.encoder.HPDF_CMapEncoderAttr"/>
+    <classEntry path="com.fxpdf.encoder.HPDF_CidRange_Rec"/>
+    <classEntry path="com.fxpdf.font.HPDF_CIDFontDef"/>
+    <classEntry path="com.fxpdf.font.HPDF_CIDFontDefAttr"/>
+    <classEntry path="com.fxpdf.font.HPDF_CID_Width"/>
+    <classEntry path="com.fxpdf.font.HPDF_FontDef_CNS"/>
+    <classEntry path="com.fxpdf.encoder.HPDF_Encoder_Cns"/>
+    <classEntry path="com.fxpdf.encoder.HPDF_UnicodeMap"/>
+    <classEntry path="com.fxpdf.font.HPDF_FontAttr_Cid"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

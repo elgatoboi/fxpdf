@@ -33,7 +33,7 @@ package com.fxpdf.font
 	
 	public class HPDF_Font extends HPDF_Dict
 	{
-		public function HPDF_Font(fontdef: HPDF_FontDef , encoder : HPDF_Encoder, xref : HPDF_Xref) 
+		public function HPDF_Font(fontdef: HPDF_FontDef = null , encoder : HPDF_Encoder = null, xref : HPDF_Xref = null) 
 		{
 			super();
 			

@@ -103,6 +103,17 @@ package com.fxpdf.objects
    			// trace ("HPDF_Array_AddReal");
    			this.HPDF_Array_Add( r) ; 
    		}
+		
+		
+		public function HPDF_Array_AddNumber( value : Number ) : void
+		{
+			var r  : HPDF_Number = new HPDF_Number ( value );
+			// trace ("HPDF_Array_AddReal");
+			this.HPDF_Array_Add( r) ; 
+			
+		}
+
+	
    		
    		public	function	HPDF_Array_Clear ( ) : void
    		{

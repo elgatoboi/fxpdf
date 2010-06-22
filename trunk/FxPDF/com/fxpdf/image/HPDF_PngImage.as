@@ -244,7 +244,7 @@ package com.fxpdf.image
 						break;
 					default:
 						// Error -- uknown filter type
-						throw new Error( "unknown png filter" );
+						//throw new Error( "unknown png filter" );
 				}
 				processPixels( curr, xOffset, xStep, dstY, passWidth );
 				var tmp: Bytes = prior;

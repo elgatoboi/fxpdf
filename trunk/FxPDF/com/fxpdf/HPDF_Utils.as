@@ -136,9 +136,15 @@ package com.fxpdf
 			var	ret	: ByteArray	=	new ByteArray; 
 			for  ( var i:int = 0; i < text.length ; i ++ ) 
 			{
-				ret.writeByte( text.charCodeAt(i) );
+				// MULTIBYTY ret.writeByte( text.charCodeAt(i) );
+				var x : uint = text.charCodeAt( i );
+				var str : String = x.toString(16 ) ;
+				//ret.writeUTF( str );
+				ret.writeShort( x ); 
 				trace("wwrite byte : " + text.charAt(i).toString() ); 
 			}
+			//ret.writeByte(0);
+			//ret.writeUTFBytes( text );
 			ret.position = 0; 
 			return ret; 
 		}
@@ -199,6 +205,15 @@ package com.fxpdf
 			var ret:ByteArray = new ByteArray;
 			for ( var i:int = 0; i < vec.length ; i++ ) { 
 				ret.writeByte( ret[i] );
+			}
+			return ret; 
+		}
+		
+		public static function VectorUintToByteArray( vec:Vector.<uint> ) :ByteArray
+		{
+			var ret:ByteArray = new ByteArray;
+			for ( var i:int = 0; i < vec.length ; i++ ) { 
+				ret.writeByte( ret[i] as int);
 			}
 			return ret; 
 		}

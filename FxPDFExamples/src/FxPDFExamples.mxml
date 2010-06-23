@@ -5,34 +5,60 @@
 	
 	<mx:Script>
 		<![CDATA[
+			
+			import com.fxpdf.streams.HPDF_MemStreamAttr;
+			
 			import demos.textDemo2;
-			import mx.controls.Text;
 			import demos.textDemo;
 			import demos.arcDemo;
 			import demos.encodingList;
-			import com.fxpdf.streams.HPDF_MemStreamAttr;
 			import demos.fontDemo;
+			import demos.chineseFonts;
+			import demos.Ext_gstate_demo;
+			import demos.Encryption;
+			import demos.Permission;
+			
 			import com.fxpdf.doc.HPDF_Doc;
 			import mx.controls.Alert;
 			
-			
-			
+		
 			private	function	runTest( name : String ) : void
 			{
 				var pdfDoc : HPDF_Doc ; 
 				
-				if ( name == "fontTest" )
-					pdfDoc = fontDemo.run() ;
-				if ( name == "encodingList" )
-					pdfDoc	= encodingList.run() ; 
-				if ( name == "arcDemo" ) 
-					pdfDoc = arcDemo.run() ; 
-				if ( name == "textDemo" ) 
-					pdfDoc = textDemo.run() ; 
-				if ( name == "textDemo2" )
-					pdfDoc = textDemo2.run(); 
-				
-				
+				switch (name) {
+					case "fontTest":
+						pdfDoc = fontDemo.run() ;
+						break;
+					case "encodingList":
+						pdfDoc = encodingList.run() ;
+						break;
+					case "arcDemo":
+						pdfDoc = arcDemo.run() ;
+						break;
+					case "textDemo":
+						pdfDoc = textDemo.run() ;
+						break;
+					case "textDemo2":
+						pdfDoc = textDemo2.run() ;
+						break;
+					case "chineseFonts":
+						pdfDoc = chineseFonts.run() ;
+						break;	
+					case "ext_gstate":
+						pdfDoc = Ext_gstate_demo.run() ;
+						break;	
+					case "encryption":
+						pdfDoc = Encryption.run(txtOwnerPassword.text, txtUserPassword.text ) ;
+						break;	
+					case "encryption":
+						pdfDoc = Permission.run(txtOwnerPassword.text, txtUserPassword.text ) ;
+						break;						
+					
+					
+					
+				}
+							
 				if ( pdfDoc )  // save to file
 				{
 					pdfDoc.HPDF_SaveToStream();  
@@ -57,13 +83,36 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox paddingLeft="50" paddingTop="20">
+	
+	<mx:HBox width="100%">
+		<mx:VBox paddingLeft="50" paddingTop="20">
+			<mx:Button label="Arc Demo" click='runTest("arcDemo");' />
+			<mx:Button label="Encoding List" click='runTest("encodingList");' />
+			<mx:Button label="Font Test" click='runTest("fontTest");' /> 
+			<mx:Button label="Text Demo" click='runTest("textDemo");' />
+			<mx:Button label="Text Demo2" click='runTest("textDemo2");' />
+		</mx:VBox> 
+		<mx:VBox paddingLeft="50" paddingTop="20">
+			<mx:Button label="Chinese Fonts" click='runTest("chineseFonts");' />
+			<mx:HBox>
+				
+				<mx:VBox>
+					<mx:Button label="Encryption" click='runTest("encryption");' />
+					<mx:Button label="Permission" click='runTest("permission");' />
+				</mx:VBox>
+				
 		
-		<mx:Button label="Arc Demo" click='runTest("arcDemo");' />
-		<mx:Button label="Encoding List" click='runTest("encodingList");' />
-		<mx:Button label="Font Test" click='runTest("fontTest");' /> 
-		<mx:Button label="Text Demo" click='runTest("textDemo");' />
-		<mx:Button label="Text Demo2" click='runTest("textDemo2");' />
-	</mx:VBox> 
+				<mx:Label text="Owner password"/>
+				<mx:TextInput id="txtOwnerPassword" text="owner"/>
+
+				<mx:Label text="User password"/>
+				<mx:TextInput id="txtUserPassword" text="user"/>
+				
+			</mx:HBox>
+			
+			<mx:Button label="Extending states" click='runTest("ext_gstate");' />
+		</mx:VBox> 		
+	</mx:HBox>
+	
 	
 </mx:Application>

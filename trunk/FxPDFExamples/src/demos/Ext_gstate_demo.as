@@ -6,6 +6,7 @@ package demos
 	import com.fxpdf.gstate.HPDF_ExtGState;
 	import com.fxpdf.gstate.HPDF_GState;
 	import com.fxpdf.page.HPDF_Page;
+	import com.fxpdf.types.enum.HPDF_BlendMode;
 	
 	public class Ext_gstate_demo
 	{
@@ -28,7 +29,6 @@ package demos
 			page.HPDF_Page_BeginText ();
 			page.HPDF_Page_TextOut ( x + 0.0, y + 130.0, description);
 			page.HPDF_Page_EndText (); 
-			
 		}
 		
 		public	static	function run() : HPDF_Doc
@@ -36,14 +36,14 @@ package demos
 			var pdfDoc 			: HPDF_Doc ; 
 			var page   			: HPDF_Page ; 
 			var defFont 		: HPDF_Font ; 
-			var PAGE_HEIGHT		: Number = 600;
-			var PAGE_WIDTH		: Number = 900;
+			var PAGE_HEIGHT		: Number = 900;
+			var PAGE_WIDTH		: Number = 600;
 			var gstate			 :HPDF_ExtGState;
 			
 			pdfDoc = new HPDF_Doc( ) ; 
 			
 			/* Add a new page object. */ 
-			page = pdfDoc.HPDF_AddPage() ;
+			page = pdfDoc.HPDF_AddPage();
 			
 			defFont = pdfDoc.HPDF_GetFont ( "Helvetica-Bold", null);
 			page.HPDF_Page_SetFontAndSize ( defFont, 10);			
@@ -57,15 +57,114 @@ package demos
 			page.HPDF_Page_GRestore (); 
 			
 //			/* transparency (0.8) */
-//			page.HPDF_Page_GSave ();
-//			gstate = new HPDF_ExtGState(page); 
-//			gstate.HPDF_ExtGState_SetAlphaFill ( 0.8);
-//			gstate.HPDF_ExtGState_SetAlphaStroke ( 0.8);
-//			page.HPDF_Page_SetExtGState  gstate );
-//			draw_circles (page, "alpha fill = 0.8", 230.0, PAGE_HEIGHT - 170);
-//			page.HPDF_Page_GRestore (); 			
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetAlphaFill ( 0.8);
+			gstate.HPDF_ExtGState_SetAlphaStroke ( 0.8);
+			page.HPDF_Page_SetExtGState (  gstate );
+			draw_circles (page, "alpha fill = 0.8", 230.0, PAGE_HEIGHT - 170);
+			page.HPDF_Page_GRestore (); 		
+			
+			/* transparency (0.4) */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetAlphaFill ( 0.4);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "alpha fill = 0.4", 420.0, PAGE_HEIGHT - 170);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_MULTIPLY */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_MULTIPLY);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_MULTIPLY", 40.0, PAGE_HEIGHT - 340);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_SCREEN */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_SCREEN);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_SCREEN", 230.0, PAGE_HEIGHT - 340);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_OVERLAY */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_OVERLAY);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_OVERLAY", 420.0, PAGE_HEIGHT - 340);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_DARKEN */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_DARKEN);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_DARKEN", 40.0, PAGE_HEIGHT - 510);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_LIGHTEN */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_LIGHTEN);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_LIGHTEN", 230.0, PAGE_HEIGHT - 510);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_COLOR_DODGE */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_COLOR_DODGE);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_COLOR_DODGE", 420.0, PAGE_HEIGHT - 510);
+			page.HPDF_Page_GRestore ();
+			
+			
+			/* blend-mode=HPDF_BM_COLOR_BUM */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_COLOR_BUM);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_COLOR_BUM", 40.0, PAGE_HEIGHT - 680);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_HARD_LIGHT */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_HARD_LIGHT);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_HARD_LIGHT", 230.0, PAGE_HEIGHT - 680);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_SOFT_LIGHT */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_SOFT_LIGHT);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_SOFT_LIGHT", 420.0, PAGE_HEIGHT - 680);
+			page.HPDF_Page_GRestore ();
+			
+			/* blend-mode=HPDF_BM_DIFFERENCE */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_DIFFERENCE);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_DIFFERENCE", 40.0, PAGE_HEIGHT - 850);
+			page.HPDF_Page_GRestore ();
+			
+			
+			/* blend-mode=HPDF_BM_EXCLUSHON */
+			page.HPDF_Page_GSave ();
+			gstate = pdfDoc.HPDF_CreateExtGState();
+			gstate.HPDF_ExtGState_SetBlendMode ( HPDF_BlendMode.HPDF_BM_EXCLUSHON);
+			page.HPDF_Page_SetExtGState ( gstate);
+			draw_circles (page, "HPDF_BM_EXCLUSHON", 230.0, PAGE_HEIGHT - 850);
+			page.HPDF_Page_GRestore ();
 			
 			return pdfDoc;
+			
 		}		
 		
 		

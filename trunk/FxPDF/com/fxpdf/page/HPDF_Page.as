@@ -40,6 +40,8 @@ package com.fxpdf.page
 	import com.fxpdf.types.enum.HPDF_ColorSpace;
 	import com.fxpdf.xref.HPDF_Xref;
 	
+	import flash.utils.ByteArray;
+	
 	
 	/**
 	 *  @private
@@ -998,8 +1000,508 @@ package com.fxpdf.page
 			trace(" HPDF_Page_SetFilter");
 			pageAttr.contents.filter = filter; 
 		} 
+		
+		public function HPDF_Page_DrawEps( stream : ByteArray, x:Number=0, y:Number=0, w:Number=0, h:Number=0, useBoundingBox:Boolean=true ) :void
+		{
+			stream.position = 0;
+			
+			//var source:String = stream.readU stream.readUTFBytes( stream.bytesAvailable );
+			var source:String = new String( stream ) ; 
+			
+			var regs:Array = source.match(/%%Creator:([^\r\n]+)/);
+			
+			if (regs.length > 1)
+			{
+				var version:String = regs[1];
+				
+				if ( version.indexOf("Adobe Illustrator") != -1 )
+				{
+					var buffVersion:Array = version.split(" ");
+					var numVersion:int = buffVersion.pop();
+					
+					/*if ( numVersion > 8 )
+						throw new Error ("Wrong version, only 1.x, 3.x or 8.x AI files are supported for now.");
+					*/
+				} else
+					null; 
+				//throw new Error("This EPS file was not created with Adobe® Illustrator®");
+			}
+			
+			var start:int = source.indexOf('%!PS-Adobe');
+			
+			if (start != -1) 
+				source = source.substr(start);
+			
+			regs = source.match(/%%BoundingBox:([^\r\n]+)/);
+			
+			var x1:Number;
+			var y1:Number;
+			var x2:Number;
+			var y2:Number;
+			var buffer:Array;
+			
+			if (regs.length > 1)
+			{
+				buffer = regs[1].substr(1).split(" ");
+				
+				x1 = buffer[0];
+				y1 = buffer[1];
+				x2 = buffer[2];
+				y2 = buffer[3];
+				
+				start = source.indexOf('%%EndSetup');
+				
+				if ( start == -1 ) 
+					start = source.indexOf('%%EndProlog');
+				if ( start == -1 ) 
+					start = source.indexOf('%%BoundingBox');
+				
+				source = source.substr(start);
+				
+				var end:int = source.indexOf('%%PageTrailer');
+				
+				if ( end == -1) 
+					end = source.indexOf('showpage');
+				if ( end ) 
+					source = source.substr(0, end);
+				
+				pageAttr.stream.HPDF_Stream_WriteStr ('q' + HPDF_Utils.NEW_LINE );
+				
+				var k:Number = 1; // przelicznik
+				var dx:Number;
+				var dy:Number;
+				
+				if (useBoundingBox)
+				{
+					dx = x*k-x1;
+					dy = y*k-y1;
+				}else
+				{
+					dx = x*k;
+					dy = y*k;
+				}
+				
+			//	pageAttr.stream.HPDF_Stream_WriteStr (sprintf('%.3F %.3F %.3F %.3F %.3F %.3F cm', 1,0,0,1,dx,dy+(currentPage.hPt - 2*y*k - (y2-y1))));
+				
+				pageAttr.stream.HPDF_Stream_WriteStr ( HPDF_Utils.HPDF_FToA(1)+ " "+
+					HPDF_Utils.HPDF_FToA(0)+ " "+
+					HPDF_Utils.HPDF_FToA(0)+ " "+
+					HPDF_Utils.HPDF_FToA(1)+ " "+
+					HPDF_Utils.HPDF_FToA(dx)+ " "+
+					HPDF_Utils.HPDF_FToA(dy+(HPDF_Page_GetHeight() - 2*y*k - (y2-y1)))+ " cm"+ HPDF_Utils.NEW_LINE);
+				
+				var scaleX:Number;
+				var scaleY:Number;
+				
+				if (w>0)
+				{
+					scaleX = w/((x2-x1)/k);
+					if (h>0)
+					{
+						scaleY = h/((y2-y1)/k);
+					}else
+					{
+						scaleY = scaleX;
+						h = (y2-y1)/k * scaleY;
+					}
+				}else
+				{
+					if (h>0)
+					{
+						scaleY = h/((y2-y1)/k);
+						scaleX = scaleY;
+						w = (x2-x1)/k * scaleX;
+					}else
+					{
+						w = (x2-x1)/k;
+						h = (y2-y1)/k;
+					}
+				}
+				
+				if (!isNaN(scaleX))
+					//pageAttr.stream.HPDF_Stream_WriteStr (sprintf('%.3F %.3F %.3F %.3F %.3F %.3F cm', scaleX, 0, 0, scaleY, x1*(1-scaleX), y2*(1-scaleY)));
+					pageAttr.stream.HPDF_Stream_WriteStr ( HPDF_Utils.HPDF_FToA(scaleX)+ " "+
+															HPDF_Utils.HPDF_FToA(0)+ " "+
+															HPDF_Utils.HPDF_FToA(0)+ " "+
+															HPDF_Utils.HPDF_FToA(scaleY)+ " "+
+															HPDF_Utils.HPDF_FToA(x1*(1-scaleX))+ " "+
+															HPDF_Utils.HPDF_FToA(y2*(1-scaleY))+ " cm"+ HPDF_Utils.NEW_LINE);
+				
+				var lines:Array = source.split(/\r\n|[\r\n]/);
+				
+				var u:Number = 0;
+				var cnt:int = lines.length;
+				var line:String;
+				var length:int;
+				var chunks:Array;
+				var c:String;
+				var m:String;
+				var ty:String;
+				var tk:String;
+				var cmd:String;
+				
+				var r:String;
+				var g:String;
+				var b:String;
+				
+				for ( var i:int=0; i<cnt; i++)
+				{
+					line = lines[i];
+					if (line == '' || line.charAt(0) == '%') 
+						continue;
+					length = line.length;
+					chunks = line.split(' ');
+					cmd = chunks.pop();
+					
+					if (cmd =='Xa' || cmd =='XA')
+					{
+						b = chunks.pop(); 
+						g = chunks.pop();
+						r = chunks.pop();
+						pageAttr.stream.HPDF_Stream_WriteStr (r+" "+g+" "+b+ " " + (cmd == 'Xa' ? 'rg' : 'RG') + HPDF_Utils.NEW_LINE);
+						continue;
+					}
+					
+					switch (cmd)
+					{
+						case 'm':
+						case 'l':
+						case 'y':
+						case 'c':
+							
+						case 'k':
+						case 'K':
+						case 'g':
+						case 'G':
+							
+						case 's':
+						case 'S':
+							
+						case 'J':
+						case 'j':
+						case 'w':
+						case 'M':
+						case 'd':
+						case 'n':
+						case 'v': // NO P
+							pageAttr.stream.HPDF_Stream_WriteStr(line+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case 'x':
+							c = chunks[0];
+							m = chunks[1];
+							ty = chunks[2];
+							tk = chunks[3];
+							pageAttr.stream.HPDF_Stream_WriteStr (c+" "+m+" "+ty+" "+tk+" k"+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case 'X':
+							c = chunks[0];
+							m = chunks[1];
+							ty = chunks[2];
+							tk = chunks[3];
+							pageAttr.stream.HPDF_Stream_WriteStr (c+" "+m+" "+ty+" "+tk+" K"+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case 'Y':
+						case 'N':
+						case 'V':
+						case 'L':
+						case 'C':
+							pageAttr.stream.HPDF_Stream_WriteStr (line.toLowerCase()+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case 'b':
+						case 'B':
+							pageAttr.stream.HPDF_Stream_WriteStr (cmd + '*'+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case 'f':
+						case 'F':
+							if (u>0)
+							{
+								var isU:Boolean = false;
+								var max:Number = i+5 < cnt ? i+5 : cnt;
+								var j:int = i+1;
+								for ( ; j<max; j++)
+									isU = (isU || (lines[j]=='U' || lines[j]=='*U'));
+								if (isU) pageAttr.stream.HPDF_Stream_WriteStr ("f*"+ HPDF_Utils.NEW_LINE);
+							}else
+								pageAttr.stream.HPDF_Stream_WriteStr ("f*"+ HPDF_Utils.NEW_LINE);
+							break;
+						
+						case '*u':
+							u++;
+							break;
+						
+						case '*U':
+							u--;
+							break;
+					}
+				}
+				
+				pageAttr.stream.HPDF_Stream_WriteStr ('Q'+ HPDF_Utils.NEW_LINE);
+				
+			}
+			else throw new Error("No bounding box found in the current EPS file");
+			
+			
+		}
+		
+/*		public function sprintf(format:String, ... args):String
+		{
+			var result:String = "";
+			
+			var length:int = format.length;
+			var next:*;
+			var str:String;
+			for (var i:int = 0; i < length; i++)
+			{
+				var c:String = format.charAt(i);
+				
+				if (c == "%")
+				{
+					var pastFieldWidth:Boolean = false;
+					var pastFlags:Boolean = false;
+					
+					var flagAlternateForm:Boolean = false;
+					var flagZeroPad:Boolean = false;
+					var flagLeftJustify:Boolean = false;
+					var flagSpace:Boolean = false;
+					var flagSign:Boolean = false;
+					
+					var fieldWidth:String = "";
+					var precision:String = "";
+					
+					c = format.charAt(++i);
+					
+					while (c != "d"
+						&& c != "i"
+						&& c != "o"
+						&& c != "u"
+						&& c != "x"
+						&& c != "X"
+						&& c != "f"
+						&& c != "F"
+						&& c != "c"
+						&& c != "s"
+						&& c != "%")
+					{
+						if (!pastFlags)
+						{
+							if (!flagAlternateForm && c == "#")
+								flagAlternateForm = true;
+							else if (!flagZeroPad && c == "0")
+								flagZeroPad = true;
+							else if (!flagLeftJustify && c == "-")
+								flagLeftJustify = true;
+							else if (!flagSpace && c == " ")
+								flagSpace = true;
+							else if (!flagSign && c == "+")
+								flagSign = true;
+							else
+								pastFlags = true;
+						}
+						
+						if (!pastFieldWidth && c == ".")
+						{
+							pastFlags = true;
+							pastFieldWidth = true;
+							
+							c = format.charAt(++i);
+							continue;
+						}
+						
+						if (pastFlags)
+						{
+							if (!pastFieldWidth)
+								fieldWidth += c;
+							else
+								precision += c;
+						}
+						
+						c = format.charAt(++i);
+					}
+					
+					switch (c)
+					{
+						case "d":
+						case "i":
+							next = args.shift();
+							str = String(Math.abs(int(next)));
+							
+							if (precision != "")
+								str = leftPad(str, int(precision), "0");
+							
+							if (int(next) < 0)
+								str = "-" + str;
+							else if (flagSign && int(next) >= 0)
+								str = "+" + str;
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else if (flagZeroPad && precision == "")
+									str = leftPad(str, int(fieldWidth), "0");
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "o":
+							next = args.shift();
+							str = uint(next).toString(8);
+							
+							if (flagAlternateForm && str != "0")
+								str = "0" + str;
+							
+							if (precision != "")
+								str = leftPad(str, int(precision), "0");
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else if (flagZeroPad && precision == "")
+									str = leftPad(str, int(fieldWidth), "0");
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "u":
+							next = args.shift();
+							str = uint(next).toString(10);
+							
+							if (precision != "")
+								str = leftPad(str, int(precision), "0");
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else if (flagZeroPad && precision == "")
+									str = leftPad(str, int(fieldWidth), "0");
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "X":
+							var capitalise:Boolean = true;
+						case "x":
+							next = args.shift();
+							str = uint(next).toString(16);
+							
+							if (precision != "")
+								str = leftPad(str, int(precision), "0");
+							
+							var prepend:Boolean = flagAlternateForm && uint(next) != 0;
+							
+							if (fieldWidth != "" && !flagLeftJustify
+								&& flagZeroPad && precision == "")
+								str = leftPad(str, prepend
+									? int(fieldWidth) - 2 : int(fieldWidth), "0");
+							
+							if (prepend)
+								str = "0x" + str;
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							if (capitalise)
+								str = str.toUpperCase();
+							
+							result += str;
+							break;
+						
+						case "f":
+						case "F":
+							next = args.shift();
+							str = Math.abs(Number(next)).toFixed(
+								precision != "" ?  Number(precision) : 6);
+							
+							if (Number(next) < 0)
+								str = "-" + str;
+							else if (flagSign && int(next) >= 0)
+								str = "+" + str;
+							
+							if (flagAlternateForm && str.indexOf(".") == -1)
+								str += ".";
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else if (flagZeroPad && precision == "")
+									str = leftPad(str, int(fieldWidth), "0");
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "c":
+							next = args.shift();
+							str = String.fromCharCode(int(next));
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "s":
+							next = args.shift();
+							str = String(next);
+							
+							if (precision != "")
+								str = str.substring(0, int(precision));
+							
+							if (fieldWidth != "")
+							{
+								if (flagLeftJustify)
+									str = rightPad(str, int(fieldWidth));
+								else
+									str = leftPad(str, int(fieldWidth));
+							}
+							
+							result += str;
+							break;
+						
+						case "%":
+							result += "%";
+					}
+				}
+				else
+				{
+					result += c;
+				}
+			}
+			
+			return result;
+		}
 
 
+*/
 		
 
 	}

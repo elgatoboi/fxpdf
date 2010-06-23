@@ -186,17 +186,17 @@ package com.fxpdf.image
 			
 			if ( interlaceMethod != 1 )
 			{
-				decodePass( 0, 0, 1, 1, width, height );
+				decodePass2( 0, 0, 1, 1, width, height );
 			}
 			else
 			{
-				decodePass( 0, 0, 8, 8, ( width + 7 ) / 8, ( height + 7 ) / 8 );
-				decodePass( 4, 0, 8, 8, ( width + 3 ) / 8, ( height + 7 ) / 8 );
-				decodePass( 0, 4, 4, 8, ( width + 3 ) / 4, ( height + 3 ) / 8 );
-				decodePass( 2, 0, 4, 4, ( width + 1 ) / 4, ( height + 3 ) / 4 );
-				decodePass( 0, 2, 2, 4, ( width + 1 ) / 2, ( height + 1 ) / 4 );
-				decodePass( 1, 0, 2, 2, width / 2, ( height + 1 ) / 2 );
-				decodePass( 0, 1, 1, 2, width, height / 2 );
+				decodePass2( 0, 0, 8, 8, ( width + 7 ) / 8, ( height + 7 ) / 8 );
+				decodePass2( 4, 0, 8, 8, ( width + 3 ) / 8, ( height + 7 ) / 8 );
+				decodePass2( 0, 4, 4, 8, ( width + 3 ) / 4, ( height + 3 ) / 8 );
+				decodePass2( 2, 0, 4, 4, ( width + 1 ) / 4, ( height + 3 ) / 4 );
+				decodePass2( 0, 2, 2, 4, ( width + 1 ) / 2, ( height + 1 ) / 4 );
+				decodePass2( 1, 0, 2, 2, width / 2, ( height + 1 ) / 2 );
+				decodePass2( 0, 1, 1, 2, width, height / 2 );
 			}
 		}
 		
@@ -224,6 +224,7 @@ package com.fxpdf.image
 				{
 					trace( e.getStackTrace() );
 				}
+				trace(" y= " + srcY.toString()  + " filter " + filter.toString( )); 
 				
 				switch ( filter )
 				{
@@ -244,7 +245,75 @@ package com.fxpdf.image
 						break;
 					default:
 						// Error -- uknown filter type
-						//throw new Error( "unknown png filter" );
+						throw new Error( "unknown png filter" );
+				}
+				processPixels( curr, xOffset, xStep, dstY, passWidth );
+				var tmp: Bytes = prior;
+				prior = curr;
+				curr = tmp;
+			}
+		}
+		
+		/**
+		 * Decode function modified not to use FZLIb 
+		 * */
+		private function decodePass2( xOffset: int, yOffset: int, xStep: int, yStep: int, passWidth: int, passHeight: int ): void
+		{
+			if ( ( passWidth == 0 ) || ( passHeight == 0 ) )
+			{
+				return;
+			}
+			var bytesPerRow: int = ( inputBands * passWidth * bitDepth + 7 ) / 8;
+			var curr: Bytes = new Bytes( bytesPerRow );
+			var prior: Bytes = new Bytes( bytesPerRow );
+			var srcY: int, dstY: int;
+			
+			var uncopressedIdat : ByteArray = new ByteArray();
+			uncopressedIdat.length  = idat.getBuffer().length; 
+			idat.getBuffer().position = 0; 
+			idat.getBuffer().readBytes( uncopressedIdat, 0 , idat.getBuffer().length );
+			uncopressedIdat.uncompress() ;
+			
+			
+			for ( srcY = 0, dstY = yOffset; srcY < passHeight; srcY++, dstY += yStep )
+			{
+				var filter: int = 0;
+				
+				
+				try
+				{
+					/* filter = buffer.readUnsignedByte();
+					buffer.readBytes( curr.buffer, 0 , bytesPerRow ); */
+					filter = uncopressedIdat.readUnsignedByte();
+					//dataStream.readFully( curr.buffer, 0, bytesPerRow );
+					uncopressedIdat.readBytes( curr.buffer, 0 , bytesPerRow ) ; 
+					
+				}
+				catch ( e: Error )
+				{
+					trace( e.getStackTrace() );
+				}
+				switch ( filter )
+				{
+					case PNG_FILTER_NONE:
+						break;
+					case PNG_FILTER_SUB:
+						decodeSubFilter( curr, bytesPerRow, bytesPerPixel );
+						break;
+					case PNG_FILTER_UP:
+						decodeUpFilter( curr, prior, bytesPerRow );
+						break;
+					case PNG_FILTER_AVERAGE:
+						throw new Error();
+						//decodeAverageFilter( curr, prior, bytesPerRow, bytesPerPixel );
+						break;
+					case PNG_FILTER_PAETH:
+						decodePaethFilter( curr, prior, bytesPerRow, bytesPerPixel );
+						break;
+					default:
+						//break;
+						// Error -- uknown filter type
+						throw new Error( "unknown png filter" );
 				}
 				processPixels( curr, xOffset, xStep, dstY, passWidth );
 				var tmp: Bytes = prior;

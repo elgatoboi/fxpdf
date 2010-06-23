@@ -868,7 +868,7 @@ package com.fxpdf.font.ttf
 	   
 	    if (attr.fsType  & (0x0002 | 0x0100 | 0x0200) && attr.embedding)
 	    {
-	    	throw new HPDF_Error( "ParseOS2", HPDF_Error.HPDF_TTF_CANNOT_EMBEDDING_FONT, 0);
+	    	// PC ? throw new HPDF_Error( "ParseOS2", HPDF_Error.HPDF_TTF_CANNOT_EMBEDDING_FONT, 0);
 	    }
 	    attr.fontData.position	=	tbl.offset + 20; 
 	    

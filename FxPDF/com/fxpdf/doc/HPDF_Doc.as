@@ -40,6 +40,7 @@ package com.fxpdf.doc
 	import com.fxpdf.font.HPDF_Type1FontDefAttr;
 	import com.fxpdf.font.ttf.HPDF_FontDef_TT;
 	import com.fxpdf.font.type1.HPDF_FontDef_Type1;
+	import com.fxpdf.gstate.HPDF_ExtGState;
 	import com.fxpdf.image.HPDF_PngImage;
 	import com.fxpdf.objects.HPDF_Array;
 	import com.fxpdf.objects.HPDF_Binary;
@@ -914,6 +915,19 @@ package com.fxpdf.doc
 			
 			this.fontdefList.HPDF_List_Add( fontdef );
 			
+		}
+		
+		
+		public function HPDF_CreateExtGState():HPDF_ExtGState
+		{
+			var extGState		: HPDF_ExtGState;
+			if ( !this.HPDF_HasDoc() )
+				return null;
+			
+			this.pdfVersion	 = HPDF_PdfVer.HPDF_VER_14;
+			
+			extGState = new HPDF_ExtGState( xref );
+			return extGState;
 		}
 		
 

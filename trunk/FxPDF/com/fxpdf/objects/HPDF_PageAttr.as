@@ -71,22 +71,31 @@ package com.fxpdf.objects
 		{
 		}
 		
-		public	function	InternalWriteText  ( text : String ) : void
+		public	function	InternalWriteText  ( text : String) : void
 		{
 		    
 		    var	fontAttr : Object	=	gstate.font.attr;
 		    trace (" InternalWriteText");
 
-		    if (fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_TT ||
-		            fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_CID) 
+			stream.HPDF_Stream_WriteStr ("<");
+			
+		    if ( fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_TT ) 
 		    {
-		        stream.HPDF_Stream_WriteStr ("<"); 
 		        stream.HPDF_Stream_WriteBinary ( HPDF_Utils.StringToByteArray(text), null as HPDF_Encrypt);
-		        stream.HPDF_Stream_WriteStr ( ">");
-		        return ; 
-		    }
-		    
+				stream.HPDF_Stream_WriteStr ( ">");		
+				return; 
+			}
+			if ( fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_CID) 
+			{
+				stream.HPDF_Stream_WriteBinary ( HPDF_Utils.StringToByteArray(text,true,"cn-gb"), null as HPDF_Encrypt);
+				stream.HPDF_Stream_WriteStr ( ">");
+				return ; 
+			}
 		    stream.HPDF_Stream_WriteEscapeText ( text,fontAttr.encoder );
+			stream.HPDF_Stream_WriteStr ( ">");
+			return; 
+						
+
 		}
 
 

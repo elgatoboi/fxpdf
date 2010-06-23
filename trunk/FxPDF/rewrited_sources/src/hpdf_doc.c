@@ -1996,18 +1996,7 @@ HPDF_CreateOutline  (HPDF_Doc       pdf,
 HPDF_EXPORT(HPDF_ExtGState)
 HPDF_CreateExtGState  (HPDF_Doc  pdf)
 {
-    HPDF_ExtGState ext_gstate;
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    pdf->pdf_version = HPDF_VER_14;
-
-    ext_gstate = HPDF_ExtGState_New (pdf->mmgr, pdf->xref);
-    if (!ext_gstate)
-        HPDF_CheckError (&pdf->error);
-
-    return ext_gstate;
+    rewrited to HPDF_Doc
 }
 
 

@@ -120,6 +120,13 @@ package com.fxpdf.font
 		
 		override public function measureTextFn(font:HPDF_Font, text:String, len:uint, width:Number, fontSize:Number, charSpace:Number, wordSpace:Number, wordwrap:Boolean, realWidth:C_NumberPointer):Number
 		{
+			var w		: Number = 0;
+			var tmpLen	: uint = 0;
+			var i 		: uint ; 
+			var attr	: HPDF_FontAttr = font.attr as HPDF_FontAttr;
+			
+			return textWidthFn( font, text, len ).width;
+			
 			/*HPDF_REAL w = 0;
 			HPDF_UINT tmp_len = 0;
 			HPDF_UINT i;
@@ -129,9 +136,9 @@ package com.fxpdf.font
 			HPDF_ParseText_Rec  parse_state;
 			HPDF_INT dw2;
 			
-			HPDF_PTRACE ((" HPDF_Type0Font_MeasureText\n"));
+			HPDF_PTRACE ((" HPDF_Type0Font_MeasureText\n"));*/
 			
-			if (attr->fontdef->type == HPDF_FONTDEF_TYPE_CID) {
+		/*	if (attr.fontdef.type == HPDF_FONTDEF_TYPE_CID) {
 				HPDF_CIDFontDefAttr cid_fontdef_attr =
 					(HPDF_CIDFontDefAttr)attr->fontdef->attr;
 				dw2 = cid_fontdef_attr->DW2[1];

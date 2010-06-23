@@ -20,6 +20,7 @@ package com.fxpdf.page
 	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.HPDF_Utils;
 	import com.fxpdf.encoder.HPDF_Encoder;
+	import com.fxpdf.encrypt.HPDF_Encrypt;
 	import com.fxpdf.error.HPDF_Error;
 	import com.fxpdf.font.HPDF_Font;
 	import com.fxpdf.font.HPDF_FontAttr;
@@ -695,14 +696,31 @@ package com.fxpdf.page
 		    
 		    trace (" ShowTextNextLine");
 		
-		    if (fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_TT ||
+			if ( fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_TT ) 
+			{
+				attr.stream.HPDF_Stream_WriteStr ( "<" );
+				attr.stream.HPDF_Stream_WriteBinary ( HPDF_Utils.StringToByteArray(text), null as HPDF_Encrypt);
+				attr.stream.HPDF_Stream_WriteStr ( ">");		
+			 
+			}
+			else if ( fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_CID) 
+			{
+				attr.stream.HPDF_Stream_WriteStr ( "<" );
+				attr.stream.HPDF_Stream_WriteBinary ( HPDF_Utils.StringToByteArray(text,true,"cn-gb"), null as HPDF_Encrypt);
+				attr.stream.HPDF_Stream_WriteStr ( ">");
+			 
+			}
+			
+			
+		    /*if (fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_TT ||
 		       fontAttr.type == HPDF_FontType.HPDF_FONT_TYPE0_CID)
 		       {
 		        attr.stream.HPDF_Stream_WriteStr ( "<" );
 		        attr.stream.HPDF_Stream_WriteBinaryString (text, null);
 		        attr.stream.HPDF_Stream_WriteStr ( ">" );
 		            
-		    } else 
+		    } 
+			*/else 
 		    { 
 		    	attr.stream.HPDF_Stream_WriteEscapeText2 (text,fontAttr.encoder, len);
 		    }

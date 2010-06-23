@@ -337,7 +337,7 @@ package com.fxpdf.page
 		    tw = page.HPDF_Page_TextWidth ( text );
 		    if (!tw)
 		        return ;
-		
+			
 		    pageAttr.InternalWriteText (text);
 		        
 		    pageAttr.stream.HPDF_Stream_WriteStr ( " Tj" + HPDF_Utils.NEW_LINE);
@@ -534,7 +534,11 @@ package com.fxpdf.page
 		    
 		    trace (" HPDF_Page_TextOutEx");
 			
-			/* no font exists */
+			if ( text.indexOf("Ubezpieczający oświadcza") == 0 )
+			{
+				var o :Object  = 1; 
+			}
+		    /* no font exists */
 		    if (!attr.gstate.font) {
 		    	throw new HPDF_Error("HPDF_Page_TextRect",HPDF_Error.HPDF_PAGE_FONT_NOT_FOUND, 0);
 		    }
@@ -619,7 +623,6 @@ package com.fxpdf.page
 		                encoder = (attr.gstate.font.attr as HPDF_FontAttr).encoder;
 		                encoder.HPDF_Encoder_SetParseText ( state, text, tmpLen);
 		                i = 0;
-						/* PC 
 		                while (i < text.length)
 		                {
 		                	var tmpPtr : uint = text.charCodeAt(i);
@@ -630,11 +633,8 @@ package com.fxpdf.page
 		                    i++;
 		                    if (i >= tmpLen)
 		                        break;
-							
 		                  
 		                }
-						*/ 
-						numChar = tmpLen;
 		
 		                if (HPDF_Utils.HPDF_IS_WHITE_SPACE( text.charCodeAt(i) ))
 		                    numChar--;

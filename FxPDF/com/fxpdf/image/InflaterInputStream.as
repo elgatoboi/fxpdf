@@ -101,6 +101,7 @@ package com.fxpdf.image
 			c_stream.avail_in = buf.length;
 			c_stream.avail_out = len;
 			c_stream.next_in_index = 0;
+			//c_stream.next_in_index = off;
 			c_stream.next_out_index = 0;
 			c_stream.next_out = b;
 			var err: int = c_stream.inflate( FZlib.Z_NO_FLUSH );

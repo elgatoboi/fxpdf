@@ -51,7 +51,7 @@
 					case "encryption":
 						pdfDoc = Encryption.run(txtOwnerPassword.text, txtUserPassword.text ) ;
 						break;	
-					case "encryption":
+					case "permission":
 						pdfDoc = Permission.run(txtOwnerPassword.text, txtUserPassword.text ) ;
 						break;						
 					

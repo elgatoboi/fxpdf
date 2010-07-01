@@ -1,10 +1,12 @@
 package demos
 {
+	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.doc.HPDF_Doc;
 	import com.fxpdf.font.HPDF_Font;
 	import com.fxpdf.page.HPDF_Page;
+	import com.fxpdf.types.HPDF_EncryptMode;
+	import com.fxpdf.types.enum.HPDF_PageDirection;
 	import com.fxpdf.types.enum.HPDF_PageSizes;
-	import com.fxpdf.types.enum.HPDF_PageDirection;	
 	
 	public class Permission
 	{
@@ -20,6 +22,10 @@ package demos
 			var text   : String = "User cannot print and copy this document.";
 			
 			pdfDoc = new HPDF_Doc( ) ; 
+			
+			pdfDoc.HPDF_SetPassword ( ownerPassword, userPassword);
+			pdfDoc.HPDF_SetPermission ( HPDF_Consts.HPDF_ENABLE_READ);
+			pdfDoc.HPDF_SetEncryptionMode ( HPDF_EncryptMode.HPDF_ENCRYPT_R3, 16); 		
 			
 			/* Add a new page object. */ 
 			page = pdfDoc.HPDF_AddPage() ;
@@ -39,9 +45,7 @@ package demos
 			page.HPDF_Page_ShowText ( text);
 			page.HPDF_Page_EndText ();
 			
-			pdfDoc.HPDF_SetPassword ( ownerPassword, userPassword);
-//			pdfDoc.HPDF_SetPermission ( HPDF_ENABLE_READ);
-//			pdfDoc.HPDF_SetEncryptionMode ( HPDF_ENCRYPT_R3, 16); 			
+				
 			 			
 			
 			return pdfDoc; 

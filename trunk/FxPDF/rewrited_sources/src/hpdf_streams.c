@@ -1428,9 +1428,6 @@ HPDF_CallbackWriter_New (HPDF_MMgr               mmgr,
 HPDF_STATUS
 HPDF_Stream_Validate  (HPDF_Stream  stream)
 {
-    if (!stream || stream->sig_bytes != HPDF_STREAM_SIG_BYTES)
-        return HPDF_FALSE;
-    else
-        return HPDF_TRUE;
+   rewr
 }
 

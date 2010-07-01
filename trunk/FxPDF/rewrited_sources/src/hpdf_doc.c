@@ -92,28 +92,14 @@ HPDF_GetVersion (void)
 HPDF_BOOL
 HPDF_Doc_Validate  (HPDF_Doc  pdf)
 {
-    HPDF_PTRACE ((" HPDF_Doc_Validate\n"));
-
-    if (!pdf || pdf->sig_bytes != HPDF_SIG_BYTES)
-        return HPDF_FALSE;
-    else
-        return HPDF_TRUE;
+    rewrited
 }
 
 
 HPDF_EXPORT(HPDF_BOOL)
 HPDF_HasDoc  (HPDF_Doc  pdf)
 {
-    HPDF_PTRACE ((" HPDF_HasDoc\n"));
-
-    if (!pdf || pdf->sig_bytes != HPDF_SIG_BYTES)
-        return HPDF_FALSE;
-
-    if (!pdf->catalog || pdf->error.error_no != HPDF_NOERROR) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_DOCUMENT, 0);
-        return HPDF_FALSE;
-    } else
-        return HPDF_TRUE;
+   rewrited
 }
 
 
@@ -121,9 +107,7 @@ HPDF_EXPORT(HPDF_Doc)
 HPDF_New  (HPDF_Error_Handler    user_error_fn,
            void                  *user_data)
 {
-    HPDF_PTRACE ((" HPDF_New\n"));
-
-    return HPDF_NewEx (user_error_fn, NULL, NULL, 0, user_data);
+    rewrited
 }
 
 
@@ -187,133 +171,21 @@ HPDF_NewEx  (HPDF_Error_Handler    user_error_fn,
 HPDF_EXPORT(void)
 HPDF_Free  (HPDF_Doc  pdf)
 {
-    HPDF_PTRACE ((" HPDF_Free\n"));
-
-    if (pdf) {
-        HPDF_MMgr mmgr = pdf->mmgr;
-
-        HPDF_FreeDocAll (pdf);
-
-        pdf->sig_bytes = 0;
-
-        HPDF_FreeMem (mmgr, pdf);
-        HPDF_MMgr_Free (mmgr);
-    }
+     rewrited 
 }
 
 
 HPDF_EXPORT(HPDF_STATUS)
 HPDF_NewDoc  (HPDF_Doc  pdf)
 {
-    char buf[HPDF_TMP_BUF_SIZ];
-    char *ptr = buf;
-    char *eptr = buf + HPDF_TMP_BUF_SIZ - 1;
-    const char *version;
-
-    HPDF_PTRACE ((" HPDF_NewDoc\n"));
-
-    if (!HPDF_Doc_Validate (pdf))
-        return HPDF_DOC_INVALID_OBJECT;
-
-    HPDF_FreeDoc (pdf);
-
-    pdf->xref = HPDF_Xref_New (pdf->mmgr, 0);
-    if (!pdf->xref)
-        return HPDF_CheckError (&pdf->error);
-
-    pdf->trailer = pdf->xref->trailer;
-
-    pdf->font_mgr = HPDF_List_New (pdf->mmgr, HPDF_DEF_ITEMS_PER_BLOCK);
-    if (!pdf->font_mgr)
-        return HPDF_CheckError (&pdf->error);
-
-    if (!pdf->fontdef_list) {
-        pdf->fontdef_list = HPDF_List_New (pdf->mmgr,
-                HPDF_DEF_ITEMS_PER_BLOCK);
-        if (!pdf->fontdef_list)
-            return HPDF_CheckError (&pdf->error);
-    }
-
-    if (!pdf->encoder_list) {
-        pdf->encoder_list = HPDF_List_New (pdf->mmgr,
-                HPDF_DEF_ITEMS_PER_BLOCK);
-        if (!pdf->encoder_list)
-            return HPDF_CheckError (&pdf->error);
-    }
-
-    pdf->catalog = HPDF_Catalog_New (pdf->mmgr, pdf->xref);
-    if (!pdf->catalog)
-        return HPDF_CheckError (&pdf->error);
-
-    pdf->root_pages = HPDF_Catalog_GetRoot (pdf->catalog);
-    if (!pdf->root_pages)
-        return HPDF_CheckError (&pdf->error);
-
-    pdf->page_list = HPDF_List_New (pdf->mmgr, HPDF_DEF_PAGE_LIST_NUM);
-    if (!pdf->page_list)
-        return HPDF_CheckError (&pdf->error);
-
-    pdf->cur_pages = pdf->root_pages;
-
-    ptr = HPDF_StrCpy (ptr, "Haru Free PDF Library ", eptr);
-    version = HPDF_GetVersion ();
-    HPDF_StrCpy (ptr, version, eptr);
-
-    if (HPDF_SetInfoAttr (pdf, HPDF_INFO_PRODUCER, buf) != HPDF_OK)
-        return HPDF_CheckError (&pdf->error);
-
-    return HPDF_OK;
+     rewrited
 }
 
 
 HPDF_EXPORT(void)
 HPDF_FreeDoc  (HPDF_Doc  pdf)
 {
-    HPDF_PTRACE ((" HPDF_FreeDoc\n"));
-
-    if (HPDF_Doc_Validate (pdf)) {
-        if (pdf->xref) {
-           HPDF_Xref_Free (pdf->xref);
-           pdf->xref = NULL;
-        }
-
-        if (pdf->font_mgr) {
-            HPDF_List_Free (pdf->font_mgr);
-            pdf->font_mgr = NULL;
-        }
-
-        if (pdf->fontdef_list)
-            CleanupFontDefList (pdf);
-
-        HPDF_MemSet(pdf->ttfont_tag, 0, 6);
-
-        pdf->pdf_version = HPDF_VER_13;
-        pdf->outlines = NULL;
-        pdf->catalog = NULL;
-        pdf->root_pages = NULL;
-        pdf->cur_pages = NULL;
-        pdf->cur_page = NULL;
-        pdf->encrypt_on = HPDF_FALSE;
-        pdf->cur_page_num = 0;
-        pdf->cur_encoder = NULL;
-        pdf->def_encoder = NULL;
-        pdf->page_per_pages = 0;
-
-        if (pdf->page_list) {
-            HPDF_List_Free (pdf->page_list);
-            pdf->page_list = NULL;
-        }
-
-        pdf->encrypt_dict = NULL;
-        pdf->info = NULL;
-
-        HPDF_Error_Reset (&pdf->error);
-
-        if (pdf->stream) {
-            HPDF_Stream_Free (pdf->stream);
-            pdf->stream = NULL;
-        }
-    }
+   rewrted
 }
 
 
@@ -342,27 +214,7 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_SetPagesConfiguration  (HPDF_Doc    pdf,
                              HPDF_UINT   page_per_pages)
 {
-    HPDF_PTRACE ((" HPDF_SetPagesConfiguration\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (pdf->cur_page)
-        return HPDF_RaiseError (&pdf->error, HPDF_INVALID_DOCUMENT_STATE, 0);
-
-    if (page_per_pages > HPDF_LIMIT_MAX_ARRAY)
-        return HPDF_RaiseError (&pdf->error, HPDF_INVALID_PARAMETER, 0);
-
-    if (pdf->cur_pages == pdf->root_pages) {
-        pdf->cur_pages = HPDF_Doc_AddPagesTo (pdf, pdf->root_pages);
-        if (!pdf->cur_pages)
-            return pdf->error.error_no;
-        pdf->cur_page_num = 0;
-    }
-
-    pdf->page_per_pages = page_per_pages;
-
-    return HPDF_OK;
+  rewrited
 }
 
 
@@ -370,54 +222,21 @@ static HPDF_STATUS
 WriteHeader  (HPDF_Doc      pdf,
               HPDF_Stream   stream)
 {
-    HPDF_UINT idx = (HPDF_INT)pdf->pdf_version;
-
-    HPDF_PTRACE ((" WriteHeader\n"));
-
-    if (HPDF_Stream_WriteStr (stream, HPDF_VERSION_STR[idx]) != HPDF_OK)
-        return pdf->error.error_no;
-
-    return HPDF_OK;
+    rewrited
 }
 
 
 static HPDF_STATUS
 PrepareTrailer  (HPDF_Doc    pdf)
 {
-    HPDF_PTRACE ((" PrepareTrailer\n"));
-
-    if (HPDF_Dict_Add (pdf->trailer, "Root", pdf->catalog) != HPDF_OK)
-        return pdf->error.error_no;
-
-    if (HPDF_Dict_Add (pdf->trailer, "Info", pdf->info) != HPDF_OK)
-        return pdf->error.error_no;
-
-    return HPDF_OK;
+     rewrited
 }
 
 
 HPDF_STATUS
 HPDF_Doc_SetEncryptOn  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_Doc_SetEncryptOn\n"));
-
-    if (pdf->encrypt_on)
-        return HPDF_OK;
-
-    if (!pdf->encrypt_dict)
-        return HPDF_SetError (&pdf->error, HPDF_DOC_ENCRYPTDICT_NOT_FOUND,
-                0);
-
-    if (pdf->encrypt_dict->header.obj_id == HPDF_OTYPE_NONE)
-        if (HPDF_Xref_Add (pdf->xref, pdf->encrypt_dict) != HPDF_OK)
-            return pdf->error.error_no;
-
-    if (HPDF_Dict_Add (pdf->trailer, "Encrypt", pdf->encrypt_dict) != HPDF_OK)
-        return pdf->error.error_no;
-
-    pdf->encrypt_on = HPDF_TRUE;
-
-    return HPDF_OK;
+  rewited
 }
 
 HPDF_EXPORT(HPDF_STATUS)
@@ -425,23 +244,7 @@ HPDF_SetPassword  (HPDF_Doc          pdf,
                    const char  *owner_passwd,
                    const char  *user_passwd)
 {
-    HPDF_PTRACE ((" HPDF_SetPassword\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_DOC_INVALID_OBJECT;
-
-    if (!pdf->encrypt_dict) {
-        pdf->encrypt_dict = HPDF_EncryptDict_New (pdf->mmgr, pdf->xref);
-
-        if (!pdf->encrypt_dict)
-            return HPDF_CheckError (&pdf->error);
-    }
-
-    if (HPDF_EncryptDict_SetPassword (pdf->encrypt_dict, owner_passwd,
-                user_passwd) != HPDF_OK)
-        return HPDF_CheckError (&pdf->error);
-
-    return HPDF_Doc_SetEncryptOn (pdf);
+    rewrited
 }
 
 
@@ -449,22 +252,7 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_SetPermission  (HPDF_Doc    pdf,
                      HPDF_UINT   permission)
 {
-    HPDF_Encrypt e;
-
-    HPDF_PTRACE ((" HPDF_SetPermission\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_DOC_INVALID_OBJECT;
-
-    e = HPDF_EncryptDict_GetAttr (pdf->encrypt_dict);
-
-    if (!e)
-        return HPDF_RaiseError (&pdf->error,
-                HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0);
-    else
-        e->permission = permission;
-
-    return HPDF_OK;
+    rewrited
 }
 
 
@@ -473,123 +261,21 @@ HPDF_SetEncryptionMode  (HPDF_Doc           pdf,
                          HPDF_EncryptMode   mode,
                          HPDF_UINT          key_len)
 {
-    HPDF_Encrypt e;
-
-    HPDF_PTRACE ((" HPDF_SetEncryptionMode\n"));
-
-    if (!HPDF_Doc_Validate (pdf))
-        return HPDF_DOC_INVALID_OBJECT;
-
-    e = HPDF_EncryptDict_GetAttr (pdf->encrypt_dict);
-
-    if (!e)
-        return HPDF_RaiseError (&pdf->error,
-                HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0);
-    else {
-        if (mode == HPDF_ENCRYPT_R2)
-            e->key_len = 5;
-        else {
-            /* if encryption mode is specified revision-3, the version of
-             * pdf file is set to 1.4
-             */
-            pdf->pdf_version = HPDF_VER_14;
-
-            if (key_len >= 5 && key_len <= 16)
-                e->key_len = key_len;
-            else if (key_len == 0)
-                e->key_len = 16;
-            else
-                return HPDF_RaiseError (&pdf->error,
-                        HPDF_INVALID_ENCRYPT_KEY_LEN, 0);
-        }
-        e->mode = mode;
-    }
-
-    return HPDF_OK;
+   rewrited
 }
 
 
 HPDF_STATUS
 HPDF_Doc_SetEncryptOff  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_Doc_SetEncryptOff\n"));
-
-    if (!pdf->encrypt_on)
-        return HPDF_OK;
-
-    /* if encrypy-dict object is registered to cross-reference-table,
-     * replace it to null-object.
-     * additionally remove encrypt-dict object from trailer-object.
-     */
-    if (pdf->encrypt_dict) {
-        HPDF_UINT obj_id = pdf->encrypt_dict->header.obj_id;
-
-        if (obj_id & HPDF_OTYPE_INDIRECT) {
-            HPDF_XrefEntry entry;
-            HPDF_Null null_obj;
-
-            HPDF_Dict_RemoveElement (pdf->trailer, "Encrypt");
-
-            entry = HPDF_Xref_GetEntryByObjectId (pdf->xref,
-                        obj_id & 0x00FFFFFF);
-
-            if (!entry) {
-                return HPDF_SetError (&pdf->error,
-                        HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0);
-            }
-
-            null_obj = HPDF_Null_New (pdf->mmgr);
-            if (!null_obj)
-                return pdf->error.error_no;
-
-            entry->obj = null_obj;
-            null_obj->header.obj_id = obj_id | HPDF_OTYPE_INDIRECT;
-
-            pdf->encrypt_dict->header.obj_id = HPDF_OTYPE_NONE;
-        }
-    }
-
-    pdf->encrypt_on = HPDF_FALSE;
-    return HPDF_OK;
+   rewrited
 }
 
 
 HPDF_STATUS
 HPDF_Doc_PrepareEncryption  (HPDF_Doc   pdf)
 {
-    HPDF_Encrypt e= HPDF_EncryptDict_GetAttr (pdf->encrypt_dict);
-    HPDF_Dict info = GetInfo (pdf);
-    HPDF_Array id;
-
-    if (!e)
-        return HPDF_DOC_ENCRYPTDICT_NOT_FOUND;
-
-    if (!info)
-        return pdf->error.error_no;
-
-    if (HPDF_EncryptDict_Prepare (pdf->encrypt_dict, info, pdf->xref) !=
-            HPDF_OK)
-        return pdf->error.error_no;
-
-    /* reset 'ID' to trailer-dictionary */
-    id = HPDF_Dict_GetItem (pdf->trailer, "ID", HPDF_OCLASS_ARRAY);
-    if (!id) {
-        id = HPDF_Array_New (pdf->mmgr);
-
-        if (!id || HPDF_Dict_Add (pdf->trailer, "ID", id) != HPDF_OK)
-            return pdf->error.error_no;
-    } else
-        HPDF_Array_Clear (id);
-
-    if (HPDF_Array_Add (id, HPDF_Binary_New (pdf->mmgr, e->encrypt_id,
-                HPDF_ID_LEN)) != HPDF_OK)
-        return pdf->error.error_no;
-
-    if (HPDF_Array_Add (id, HPDF_Binary_New (pdf->mmgr, e->encrypt_id,
-                HPDF_ID_LEN)) != HPDF_OK)
-        return pdf->error.error_no;
-
-    return HPDF_OK;
+   rewr
 }
 
 
@@ -597,69 +283,21 @@ static HPDF_STATUS
 InternalSaveToStream  (HPDF_Doc      pdf,
                        HPDF_Stream   stream)
 {
-    HPDF_STATUS ret;
-    printf("internal save t stream \n " );
-    if ((ret = WriteHeader (pdf, stream)) != HPDF_OK)
-        return ret;
-
-    /* prepare trailer */
-    if ((ret = PrepareTrailer (pdf)) != HPDF_OK)
-        return ret;
-    
-    /* prepare encription */
-    if (pdf->encrypt_on) {
-        HPDF_Encrypt e= HPDF_EncryptDict_GetAttr (pdf->encrypt_dict);
-
-        if ((ret = HPDF_Doc_PrepareEncryption (pdf)) != HPDF_OK)
-            return ret;
-
-        if ((ret = HPDF_Xref_WriteToStream (pdf->xref, stream, e)) != HPDF_OK)
-            return ret;
-    } else {
-        if ((ret = HPDF_Xref_WriteToStream (pdf->xref, stream, NULL)) !=
-                HPDF_OK)
-            return ret;
-    }
-
-    return HPDF_OK;
+    rewr
 }
 
 
 HPDF_EXPORT(HPDF_STATUS)
 HPDF_SaveToStream  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_SaveToStream\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (!pdf->stream)
-        pdf->stream = HPDF_MemStream_New (pdf->mmgr, HPDF_STREAM_BUF_SIZ);
-
-    if (!HPDF_Stream_Validate (pdf->stream))
-        return HPDF_RaiseError (&pdf->error, HPDF_INVALID_STREAM, 0);
-
-    HPDF_MemStream_FreeData (pdf->stream);
-
-    if (InternalSaveToStream (pdf, pdf->stream) != HPDF_OK)
-        return HPDF_CheckError (&pdf->error);
-
-    return HPDF_OK;
+   rew
 }
 
 
 HPDF_EXPORT(HPDF_UINT32)
 HPDF_GetStreamSize  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_GetStreamSize\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (!HPDF_Stream_Validate (pdf->stream))
-        return 0;
-
-    return HPDF_Stream_Size(pdf->stream);
+   rwer
 }
 
 
@@ -730,12 +368,7 @@ HPDF_SaveToFile  (HPDF_Doc     pdf,
 HPDF_EXPORT(HPDF_Page)
 HPDF_GetCurrentPage  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_GetCurrentPage\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    return pdf->cur_page;
+   rewr
 }
 
 
@@ -743,32 +376,14 @@ HPDF_EXPORT(HPDF_Page)
 HPDF_GetPageByIndex  (HPDF_Doc    pdf,
                       HPDF_UINT   index)
 {
-    HPDF_Page ret;
-
-    HPDF_PTRACE ((" HPDF_GetPageByIndex\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    ret = HPDF_List_ItemAt (pdf->page_list, index);
-    if (!ret) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_PAGE_INDEX, 0);
-        return NULL;
-    }
-
-    return ret;
+   rew
 }
 
 
 HPDF_Pages
 HPDF_Doc_GetCurrentPages  (HPDF_Doc   pdf)
 {
-    HPDF_PTRACE ((" HPDF_GetCurrentPages\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    return pdf->cur_pages;
+   rwer
 }
 
 
@@ -776,21 +391,7 @@ HPDF_STATUS
 HPDF_Doc_SetCurrentPages  (HPDF_Doc     pdf,
                            HPDF_Pages   pages)
 {
-    HPDF_PTRACE ((" HPDF_Doc_SetCurrentPages\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (!HPDF_Pages_Validate (pages))
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_PAGES, 0);
-
-    /* check whether the pages belong to the pdf */
-    if (pdf->mmgr != pages->mmgr)
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_PAGES, 0);
-
-    pdf->cur_pages = pages;
-
-    return HPDF_OK;
+   rwewr
 }
 
 
@@ -798,68 +399,14 @@ HPDF_STATUS
 HPDF_Doc_SetCurrentPage  (HPDF_Doc    pdf,
                           HPDF_Page   page)
 {
-    HPDF_PTRACE ((" HPDF_Doc_SetCurrentPage\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (!HPDF_Page_Validate (page))
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_PAGE, 0);
-
-    /* check whether the page belong to the pdf */
-    if (pdf->mmgr != page->mmgr)
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_PAGE, 0);
-
-    pdf->cur_page = page;
-
-    return HPDF_OK;
+    rewer
 }
 
 
 HPDF_EXPORT(HPDF_Page)
 HPDF_AddPage  (HPDF_Doc  pdf)
 {
-    HPDF_Page page;
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE ((" HPDF_AddPage\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    if (pdf->page_per_pages) {
-        if (pdf->page_per_pages <= pdf->cur_page_num) {
-            pdf->cur_pages = HPDF_Doc_AddPagesTo (pdf, pdf->root_pages);
-            if (!pdf->cur_pages)
-                return NULL;
-            pdf->cur_page_num = 0;
-        }
-    }
-
-    page = HPDF_Page_New (pdf->mmgr, pdf->xref);
-    if (!page) {
-        HPDF_CheckError (&pdf->error);
-        return NULL;
-    }
-
-    if ((ret = HPDF_Pages_AddKids (pdf->cur_pages, page)) != HPDF_OK) {
-        HPDF_RaiseError (&pdf->error, ret, 0);
-        return NULL;
-    }
-
-    if ((ret = HPDF_List_Add (pdf->page_list, page)) != HPDF_OK) {
-        HPDF_RaiseError (&pdf->error, ret, 0);
-        return NULL;
-    }
-
-    pdf->cur_page = page;
-
-    if (pdf->compression_mode & HPDF_COMP_TEXT)
-        HPDF_Page_SetFilter (page, HPDF_STREAM_FILTER_FLATE_DECODE);
-
-    pdf->cur_page_num++;
-
-    return page;
+    rewr
 }
 
 
@@ -867,32 +414,7 @@ HPDF_Pages
 HPDF_Doc_AddPagesTo  (HPDF_Doc     pdf,
                       HPDF_Pages   parent)
 {
-    HPDF_Pages pages;
-
-    HPDF_PTRACE ((" HPDF_AddPagesTo\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    if (!HPDF_Pages_Validate (parent)) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_PAGES, 0);
-        return NULL;
-    }
-
-    /* check whether the page belong to the pdf */
-    if (pdf->mmgr != parent->mmgr) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_PAGES, 0);
-        return NULL;
-    }
-
-    pages = HPDF_Pages_New (pdf->mmgr, parent, pdf->xref);
-    if (pages)
-        pdf->cur_pages = pages;
-    else
-        HPDF_CheckError (&pdf->error);
-
-
-    return  pages;
+   rewr
 }
 
 
@@ -900,45 +422,7 @@ HPDF_EXPORT(HPDF_Page)
 HPDF_InsertPage  (HPDF_Doc    pdf,
                   HPDF_Page   target)
 {
-    HPDF_Page page;
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE ((" HPDF_InsertPage\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    if (!HPDF_Page_Validate (target)) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_PAGE, 0);
-        return NULL;
-    }
-
-    /* check whether the page belong to the pdf */
-    if (pdf->mmgr != target->mmgr) {
-        HPDF_RaiseError (&pdf->error, HPDF_INVALID_PAGE, 0);
-        return NULL;
-    }
-
-    page = HPDF_Page_New (pdf->mmgr, pdf->xref);
-    if (!page) {
-        HPDF_CheckError (&pdf->error);
-        return NULL;
-    }
-
-    if ((ret = HPDF_Page_InsertBefore (page, target)) != HPDF_OK) {
-        HPDF_RaiseError (&pdf->error, ret, 0);
-        return NULL;
-    }
-
-    if ((ret = HPDF_List_Insert (pdf->page_list, target, page)) != HPDF_OK) {
-        HPDF_RaiseError (&pdf->error, ret, 0);
-        return NULL;
-    }
-
-    if (pdf->compression_mode & HPDF_COMP_TEXT)
-        HPDF_Page_SetFilter (page, HPDF_STREAM_FILTER_FLATE_DECODE);
-
-    return page;
+  rewer
 }
 
 
@@ -946,12 +430,7 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_SetErrorHandler  (HPDF_Doc             pdf,
                        HPDF_Error_Handler   user_error_fn)
 {
-    if (!HPDF_Doc_Validate (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    pdf->error.error_fn = user_error_fn;
-
-    return HPDF_OK;
+    rewrite
 }
 
 
@@ -961,35 +440,13 @@ HPDF_SetErrorHandler  (HPDF_Doc             pdf,
 static void
 FreeFontDefList  (HPDF_Doc   pdf)
 {
-    HPDF_List list = pdf->fontdef_list;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" HPDF_Doc_FreeFontDefList\n"));
-
-    for (i = 0; i < list->count; i++) {
-        HPDF_FontDef def = (HPDF_FontDef)HPDF_List_ItemAt (list, i);
-
-        HPDF_FontDef_Free (def);
-    }
-
-    HPDF_List_Free (list);
-
-    pdf->fontdef_list = NULL;
+    rewr
 }
 
 static void
 CleanupFontDefList  (HPDF_Doc  pdf)
 {
-    HPDF_List list = pdf->fontdef_list;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" CleanupFontDefList\n"));
-
-    for (i = 0; i < list->count; i++) {
-        HPDF_FontDef def = (HPDF_FontDef)HPDF_List_ItemAt (list, i);
-
-        HPDF_FontDef_Cleanup (def);
-    }
+    rewr
 }
 
 
@@ -997,27 +454,7 @@ HPDF_FontDef
 HPDF_Doc_FindFontDef  (HPDF_Doc          pdf,
                        const char  *font_name)
 {
-    HPDF_List list = pdf->fontdef_list;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" HPDF_Doc_FindFontDef\n"));
-
-    for (i = 0; i < list->count; i++) {
-        HPDF_FontDef def = (HPDF_FontDef)HPDF_List_ItemAt (list, i);
-
-        if (HPDF_StrCmp (font_name, def->base_font) == 0) {
-            if (def->type == HPDF_FONTDEF_TYPE_UNINITIALIZED) {
-			   printf("inicjuje czcionnke\n");
-                if (!def->init_fn ||
-                    def->init_fn (def) != HPDF_OK)
-                    return NULL;
-            }
-
-            return def;
-        }
-    }
-
-    return NULL;
+    rewr
 }
 
 
@@ -1025,24 +462,7 @@ HPDF_STATUS
 HPDF_Doc_RegisterFontDef  (HPDF_Doc       pdf,
                            HPDF_FontDef   fontdef)
 {
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE ((" HPDF_Doc_RegisterFontDef\n"));
-
-    if (!fontdef)
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_OBJECT, 0);
-
-    if (HPDF_Doc_FindFontDef (pdf, fontdef->base_font) != NULL) {
-        HPDF_FontDef_Free (fontdef);
-        return HPDF_SetError (&pdf->error, HPDF_DUPLICATE_REGISTRATION, 0);
-    }
-
-    if ((ret = HPDF_List_Add (pdf->fontdef_list, fontdef)) != HPDF_OK) {
-        HPDF_FontDef_Free (fontdef);
-        return HPDF_SetError (&pdf->error, ret, 0);
-    }
-
-    return HPDF_OK;
+    rewr
 }
 
 
@@ -1051,30 +471,7 @@ HPDF_FontDef
 HPDF_GetFontDef  (HPDF_Doc          pdf,
                   const char  *font_name)
 {
-    HPDF_STATUS ret;
-    HPDF_FontDef def;
-
-    HPDF_PTRACE ((" HPDF_GetFontDef\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    def = HPDF_Doc_FindFontDef (pdf, font_name);
-
-    if (!def) {
-        def = HPDF_Base14FontDef_New (pdf->mmgr, font_name);
-
-        if (!def)
-            return NULL;
-
-        if ((ret = HPDF_List_Add (pdf->fontdef_list, def)) != HPDF_OK) {
-            HPDF_FontDef_Free (def);
-            HPDF_RaiseError (&pdf->error, ret, 0);
-            def = NULL;
-        }
-    }
-
-    return def;
+   rewe
 }
 
 
@@ -1085,28 +482,7 @@ HPDF_Encoder
 HPDF_Doc_FindEncoder  (HPDF_Doc         pdf,
                        const char  *encoding_name)
 {
-    HPDF_List list = pdf->encoder_list;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" HPDF_Doc_FindEncoder\n"));
-
-    for (i = 0; i < list->count; i++) {
-        HPDF_Encoder encoder = (HPDF_Encoder)HPDF_List_ItemAt (list, i);
-
-        if (HPDF_StrCmp (encoding_name, encoder->name) == 0) {
-
-            /* if encoder is uninitialize, call init_fn() */
-            if (encoder->type == HPDF_ENCODER_TYPE_UNINITIALIZED) {
-                if (!encoder->init_fn ||
-                    encoder->init_fn (encoder) != HPDF_OK)
-                    return NULL;
-            }
-
-            return encoder;
-        }
-    }
-
-    return NULL;
+    rewer
 }
 
 
@@ -1115,22 +491,7 @@ HPDF_STATUS
 HPDF_Doc_RegisterEncoder  (HPDF_Doc       pdf,
                            HPDF_Encoder   encoder)
 {
-    HPDF_STATUS ret;
-
-    if (!encoder)
-        return HPDF_SetError (&pdf->error, HPDF_INVALID_OBJECT, 0);
-
-    if (HPDF_Doc_FindEncoder (pdf, encoder->name) != NULL) {
-        HPDF_Encoder_Free (encoder);
-        return HPDF_SetError (&pdf->error, HPDF_DUPLICATE_REGISTRATION, 0);
-    }
-
-    if ((ret = HPDF_List_Add (pdf->encoder_list, encoder)) != HPDF_OK) {
-        HPDF_Encoder_Free (encoder);
-        return HPDF_SetError (&pdf->error, ret, 0);
-    }
-
-    return HPDF_OK;
+   rewr
 }
 
 
@@ -1138,42 +499,14 @@ HPDF_EXPORT(HPDF_Encoder)
 HPDF_GetEncoder  (HPDF_Doc         pdf,
                   const char  *encoding_name)
 {
-    HPDF_Encoder encoder;
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE ((" HPDF_GetEncoder\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    encoder = HPDF_Doc_FindEncoder (pdf, encoding_name);
-
-    if (!encoder) {
-        encoder = HPDF_BasicEncoder_New (pdf->mmgr, encoding_name);
-
-        if (!encoder) {
-            HPDF_CheckError (&pdf->error);
-            return NULL;
-        }
-
-        if ((ret = HPDF_List_Add (pdf->encoder_list, encoder)) != HPDF_OK) {
-            HPDF_Encoder_Free (encoder);
-            HPDF_RaiseError (&pdf->error, ret, 0);
-            return NULL;
-        }
-    }
-
-    return encoder;
+   rewr
 }
 
 
 HPDF_EXPORT(HPDF_Encoder)
 HPDF_GetCurrentEncoder  (HPDF_Doc    pdf)
 {
-    if (!HPDF_HasDoc (pdf))
-        return NULL;
-
-    return pdf->cur_encoder;
+    rewer
 }
 
 
@@ -1181,38 +514,14 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_SetCurrentEncoder  (HPDF_Doc    pdf,
                          const char  *encoding_name)
 {
-    HPDF_Encoder encoder;
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_GetError (pdf);
-
-    encoder = HPDF_GetEncoder (pdf, encoding_name);
-    pdf->cur_encoder = encoder;
-
-    if (!pdf)
-        return HPDF_GetError (pdf);
-
-    return HPDF_OK;
+    rewer
 }
 
 
 static void
 FreeEncoderList  (HPDF_Doc  pdf)
 {
-    HPDF_List list = pdf->encoder_list;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" FreeEncoderList\n"));
-
-    for (i = 0; i < list->count; i++) {
-        HPDF_Encoder encoder = (HPDF_Encoder)HPDF_List_ItemAt (list, i);
-
-        HPDF_Encoder_Free (encoder);
-    }
-
-    HPDF_List_Free (list);
-
-    pdf->encoder_list = NULL;
+    rewr
 }
 
 

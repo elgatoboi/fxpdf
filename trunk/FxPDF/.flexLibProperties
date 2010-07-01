@@ -127,6 +127,7 @@
     <classEntry path="com.fxpdf.encoder.HPDF_Encoder_Cns"/>
     <classEntry path="com.fxpdf.encoder.HPDF_UnicodeMap"/>
     <classEntry path="com.fxpdf.font.HPDF_FontAttr_Cid"/>
+    <classEntry path="com.fxpdf.dict.HPDF_Null"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

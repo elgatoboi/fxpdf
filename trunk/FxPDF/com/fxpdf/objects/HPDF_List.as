@@ -18,6 +18,7 @@ limitations under the License.
 package com.fxpdf.objects
 {
 	import com.fxpdf.HPDF_Conf;
+	import com.fxpdf.error.HPDF_Error;
 	
 	public class HPDF_List
 	{
@@ -56,11 +57,53 @@ package com.fxpdf.objects
         	obj.push( item );
         }
         
+		public function HPDF_List_Insert  ( target : Object, item : Object ) : void
+		{
+			var targetIdx	: int = HPDF_List_Find( target ) ;
+			var lastItem	: Object = this.obj[count - 1]; 
+			var i 			: int ; 
+			
+			
+			trace(" HPDF_List_Insert");
+			
+			if (targetIdx < 0)
+				throw new HPDF_Error("HPDF_List_Insert", HPDF_Error.HPDF_ITEM_NOT_FOUND, 0);
+			
+			/* move the item of the list to behind one by one. */
+			for (i = count - 2; i >= targetIdx; i--)
+				obj[i + 1] = obj[i];
+			
+			obj[targetIdx] = item;
+			
+			HPDF_List_Add (lastItem);
+		}
         
+		
+		
+		public function HPDF_List_Find  ( item  :Object ) : int
+		{
+			
+			
+			trace(" HPDF_List_Find");
+			
+			for (var i:uint = 0; i < count; i++) {
+				if ( obj[i] == item)
+					return i;
+			}
+			
+			return -1;
+		}
+
+		
         public	function	HPDF_List_ItemAt( i : int ) : Object 
         {
         	return obj[i]; 
         }
+		
+		public function HPDF_List_Free():void
+		{
+			
+		}
      /*   private	function	Resize( count : int ) : Boolean
         {
         	var	newObj : Object;

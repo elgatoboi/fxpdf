@@ -20,8 +20,10 @@ package com.fxpdf.doc
 	import com.fxpdf.HPDF_Conf;
 	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.HPDF_Utils;
+	import com.fxpdf.HPDF_Xref_Entry;
 	import com.fxpdf.catalog.HPDF_Catalog;
 	import com.fxpdf.dict.HPDF_Dict;
+	import com.fxpdf.dict.HPDF_Null;
 	import com.fxpdf.dict.HPDF_Outline;
 	import com.fxpdf.encoder.HPDF_BasicEncoder;
 	import com.fxpdf.encoder.HPDF_CMapEncoder;
@@ -50,6 +52,7 @@ package com.fxpdf.doc
 	import com.fxpdf.page.HPDF_Page;
 	import com.fxpdf.streams.HPDF_MemStream;
 	import com.fxpdf.streams.HPDF_Stream;
+	import com.fxpdf.types.HPDF_EncryptMode;
 	import com.fxpdf.types.HPDF_PageMode;
 	import com.fxpdf.types.enum.HPDF_ColorSpace;
 	import com.fxpdf.types.enum.HPDF_EncoderType;
@@ -95,7 +98,7 @@ package com.fxpdf.doc
 		
 		public	var	error :HPDF_Error;
 		
-		public	var	xref : HPDF_Xref ; 
+		public	var	xref 		: HPDF_Xref ; 
 		public	var	rootPages	: HPDF_Pages;
 		public	var	curPages	: HPDF_Pages; 
 		public	var	curPage		: HPDF_Page ; 
@@ -312,7 +315,304 @@ package com.fxpdf.doc
 	        */
   	  }
   	  
-  	  
+		
+	  public function HPDF_SetPagesConfiguration( pagePerPages : uint ) :void
+	  {
+		  trace (" HPDF_SetPagesConfiguration");
+		  
+		  if ( this.curPage ) 
+			  throw new HPDF_Error( "HPDF_SetPagesConfiguration", HPDF_Error.HPDF_INVALID_DOCUMENT_STATE,0);
+		  
+		  if ( pagePerPages > HPDF_Consts.HPDF_LIMIT_MAX_ARRAY ) 
+			  throw new HPDF_Error( "HPDF_SetPagesConfiguration", HPDF_Error.HPDF_INVALID_PARAMETER,0);
+		  
+		  if ( this.curPages == this.rootPages ) { 
+			  curPages = this.HPDF_Doc_AddPagesTo( rootPages );
+			  curPageNum = 0; 
+		  }
+		  this.pagePerPages = pagePerPages;
+	  }
+	  
+	  private	function	WriteHeader( stream : HPDF_Stream ) : void
+	  {
+		  var idx : uint = pdfVersion ;
+		  trace (" WriteHeader");
+		  
+		  var h:HPDF_Utils; 
+		  var str:String	=	HPDF_Utils.ParseString( HPDF_VERSION_STR[idx] )
+		  stream.HPDF_Stream_WriteStr ( str );
+	  }
+	  
+	  private	function	PrepareTrailer  ( ) : void
+	  {
+		  trace (" PrepareTrailer");
+		  
+		  trailer.HPDF_Dict_Add("Root", catalog );
+		  trailer.HPDF_Dict_Add("Info", info );
+	  }
+	  
+	  public function HPDF_Doc_SetEncryptOn():void
+	  {
+		  trace ("HPDF_Doc_SetEncryptOn");
+		  
+		  if ( encryptOn ) 
+			  return ; 
+		  
+		  if (!encryptDict) 
+			  throw new HPDF_Error( "HPDF_Doc_SetEncryptOn",HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND,0);
+		  
+		  if ( encryptDict.header.objId == HPDF_Obj_Header.HPDF_OTYPE_NONE)
+			  xref.HPDF_Xref_Add ( encryptDict);
+		  
+		  trailer.HPDF_Dict_Add ("Encrypt", encryptDict);
+		  
+		  encryptOn = true; 
+		  
+	  }
+	  
+	  
+	  public function	HPDF_SetPassword  ( ownerPass : String, userPass : String ) :void
+	  {
+		  trace ("HPDF_SetPassword");
+		  
+		  if (!HPDF_HasDoc ())
+			  throw new HPDF_Error("HPDF_SetPassword - invalid document");
+		  
+		  if (!encryptDict)
+			  encryptDict = new HPDF_EncryptDict ( xref );
+		  
+		  encryptDict.HPDF_EncryptDict_SetPassword (ownerPass, userPass);
+		  
+		  HPDF_Doc_SetEncryptOn();
+		  
+	  }
+	  
+
+	  public function  HPDF_SetPermission  ( permission : uint ) : void
+	  {
+		  var e		: HPDF_Encrypt;
+		  
+		  trace ("HPDF_SetPermission");
+		  
+		  if (!HPDF_HasDoc ())
+			  throw new HPDF_Error("HPDF_SetPermission", HPDF_Error.HPDF_DOC_INVALID_OBJECT, 0 );
+		  
+		  e = this.encryptDict.HPDF_EncryptDict_GetAttr ();
+		  
+		  if (!e)
+			  throw new HPDF_Error("HPDF_SetPermission", HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0 );
+		  else
+		  	e.permission = permission;
+		  
+	  }
+
+	  
+	  public function  HPDF_SetEncryptionMode  ( mode : uint, keyLen : uint ) : void 
+	  {
+		  var e		: HPDF_Encrypt;
+		  
+		  trace (" HPDF_SetEncryptionMode");
+		  
+		  
+		  e = this.encryptDict.HPDF_EncryptDict_GetAttr ();
+		  
+		  if (!e)
+			  throw new HPDF_Error("HPDF_SetPermission", HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0 );
+		  else 
+		  {
+			  if ( mode == HPDF_EncryptMode.HPDF_ENCRYPT_R2 )
+				  e.keyLen = 5;
+			  else {
+				  /* if encryption mode is specified revision-3, the version of
+				  * pdf file is set to 1.4
+				  */
+				  pdfVersion = HPDF_PdfVer.HPDF_VER_14;
+				  
+				  if (keyLen >= 5 && keyLen <= 16)
+					  e.keyLen = keyLen;
+				  else if (keyLen == 0)
+					  e.keyLen = 16;
+				  else
+					  throw new HPDF_Error("HPDF_SetPermission", HPDF_Error.HPDF_INVALID_ENCRYPT_KEY_LEN, 0 );
+			  }
+			  e.mode = mode;
+		  }
+		
+	  }
+
+	  public function HPDF_Doc_SetEncryptOff  ():void
+	  {
+		  trace (" HPDF_Doc_SetEncryptOff");
+		  
+		  if (!encryptOn)
+			  return ;
+		  
+		  /* if encrypy-dict object is registered to cross-reference-table,
+		  * replace it to null-object.
+		  * additionally remove encrypt-dict object from trailer-object.
+		  */
+		  if (encryptDict) {
+			  var objId : uint = encryptDict.header.objId;
+			  
+			  if (objId & HPDF_Obj_Header.HPDF_OTYPE_INDIRECT) {
+				  var entry		: HPDF_Xref_Entry;
+				  var nullObj	: HPDF_Null = new HPDF_Null();
+				  
+				  trailer.HPDF_Dict_RemoveElement ("Encrypt");
+				  
+				  entry = xref.HPDF_Xref_GetEntryByObjectId (objId & 0x00FFFFFF);
+				  
+				  if (!entry) {
+					  throw new HPDF_Error("HPDF_Doc_SetEncryptOff", HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND, 0);
+				  }
+				  
+				  
+				  entry.obj = nullObj;
+				  nullObj.header.objId = objId | HPDF_Obj_Header.HPDF_OTYPE_INDIRECT;
+				  
+				  encryptDict.header.objId = HPDF_Obj_Header.HPDF_OTYPE_NONE;
+			  }
+		  }
+		  
+		  encryptOn = false;
+	  }
+
+	  private function HPDF_Doc_PrepareEncryption  ():void
+	  {
+		  var e:HPDF_Encrypt	=	 encryptDict.HPDF_EncryptDict_GetAttr();
+		  
+		  var id : HPDF_Array;
+		  
+		  
+		  encryptDict.HPDF_EncryptDict_Prepare (info,xref);
+		  
+		  /* reset 'ID' to trailer-dictionary */
+		  id = trailer.HPDF_Dict_GetItem ("ID", HPDF_Obj_Header.HPDF_OCLASS_ARRAY) as HPDF_Array;
+		  if ( id == null )
+		  {
+			  id = new HPDF_Array ();
+			  
+			  trailer.HPDF_Dict_Add ( "ID", id);
+		  } else
+			  id.HPDF_Array_Clear ();
+		  
+		  trace("encrypt id  " + e.encryptId[0].toString() + " " + e.encryptId[1].toString() );
+		  id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId) ) ; //, HPDF_ID_LEN) );
+		  
+		  id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId )) ; // , HPDF_ID_LEN) );
+	  }
+	  
+	  
+	  public	function	InternalSaveToStream  ( stream  :HPDF_Stream  ) : void
+	  {
+		  WriteHeader( stream );
+		  /* prepare trailer */
+		  PrepareTrailer ();
+		  
+		  var e:HPDF_Encrypt = encryptDict. HPDF_EncryptDict_GetAttr ();
+		  
+		  HPDF_Doc_PrepareEncryption ();
+		  
+		  /* prepare encription */
+		  if (encryptOn)
+		  {
+			  xref.HPDF_Xref_WriteToStream (stream, e);
+		  } 
+		  else 
+			  xref.HPDF_Xref_WriteToStream (stream, null);
+	  }
+	  
+	  public	function	HPDF_SaveToStream  () : void
+	  {
+		  trace (" HPDF_SaveToStream");
+		  
+		  if (!stream)
+			  stream = new HPDF_MemStream(); 
+		  
+		  // mod PC
+		  if (!encryptDict)
+			  encryptDict = new HPDF_EncryptDict ( xref );
+		  
+		  if (!stream) // .HPDF_Stream_Validate ( ))
+		  {
+			  throw new HPDF_Error( "HPDF_SaveToStream" , HPDF_Error.HPDF_INVALID_STREAM, 0 );
+		  }
+		  (stream as HPDF_MemStream ).HPDF_MemStream_FreeData( );
+		  
+		  InternalSaveToStream ( stream );
+	  }
+	  
+	  
+	  public function  HPDF_GetStreamSize  () : uint
+	  {
+		  trace (" HPDF_GetStreamSize");
+		  
+		  if ( !stream.HPDF_Stream_Validate() ) 
+			  return 0;
+		  
+		  return stream.HPDF_Stream_Size();
+	  }
+	  
+	  
+	  
+	  
+	  
+	  public function HPDF_GetCurrentPage  ():HPDF_Page
+	  {
+		  trace (" HPDF_GetCurrentPage");
+		  
+		  return curPage;
+	  }
+	  
+	  
+	  public function  HPDF_GetPageByIndex  ( index : uint ):HPDF_Page
+	  {
+		  var ret		: HPDF_Page;
+		  
+		  trace (" HPDF_GetPageByIndex");
+		  
+		  ret = pageList.HPDF_List_ItemAt ( index ) as HPDF_Page;
+		  if (!ret) {
+			  throw new HPDF_Error( "HPDF_GetPageByIndex" , HPDF_Error.HPDF_INVALID_PAGE_INDEX, 0 );
+		  }
+		  
+		  return ret;
+	  }
+
+	  
+	  public function  HPDF_Doc_GetCurrentPages  ():HPDF_Pages
+	  {
+		  trace (" HPDF_GetCurrentPages");
+		 		  
+		  return curPages;
+	  }
+	  
+	  public function HPDF_Doc_SetCurrentPages  (pages  : HPDF_Pages ) : void
+	  {
+		  trace (" HPDF_Doc_SetCurrentPages");
+		  
+		 
+		  if (!pages.HPDF_Pages_Validate ())
+			  throw new HPDF_Error( "HPDF_Doc_SetCurrentPages" , HPDF_Error.HPDF_INVALID_PAGES, 0 );
+		  
+		  curPages = pages;
+		  
+	  }
+	  
+	  
+	  public function HPDF_Doc_SetCurrentPage  ( page : HPDF_Page ) : void
+	  {
+		  trace (" HPDF_Doc_SetCurrentPage");
+		  
+			
+		  if (!page.HPDF_Page_Validate())
+			  throw new HPDF_Error( "HPDF_Doc_SetCurrentPage" , HPDF_Error.HPDF_INVALID_PAGE, 0 );
+		  
+		  curPage = page;
+	  }
+
+
+	  
   	  public	function	HPDF_AddPage( ) : HPDF_Page
   	  {
   	  	 trace (" HPDF_AddPage");
@@ -348,6 +648,27 @@ package com.fxpdf.doc
     	return page;
   	  	
   	  }
+	  
+	  public	function	HPDF_Doc_AddPagesTo( parent : HPDF_Pages ) : HPDF_Pages
+	  {
+		  
+		  
+		  var	pages : HPDF_Pages ; 
+		  trace(" HPDF_AddPagesTo");
+		  
+		  if (!HPDF_HasDoc ())
+			  return null;
+		  
+		  if (! parent.HPDF_Pages_Validate ())
+		  {
+			  throw new HPDF_Error( "Invalid Pages", HPDF_Error.HPDF_INVALID_PAGES , 0 );
+		  }
+		  
+		  pages = new HPDF_Pages( parent, xref ); 
+		  
+		  curPages	=	pages; 
+		  return pages; 
+	  } 
   	  
   	  public	function	HPDF_HasDoc( ) :Boolean
   	  {
@@ -364,115 +685,238 @@ package com.fxpdf.doc
      
      
      
-     public	function	HPDF_Doc_AddPagesTo( parent : HPDF_Pages ) : HPDF_Pages
-     {
-     	
-     	
-		var	pages : HPDF_Pages ; 
-	   	trace(" HPDF_AddPagesTo");
-
-	    if (!HPDF_HasDoc ())
-	        return null;
-
-	    if (! parent.HPDF_Pages_Validate ())
-	    {
-	    	throw new HPDF_Error( "Invalid Pages", HPDF_Error.HPDF_INVALID_PAGES , 0 );
-	    }
-
-	    pages = new HPDF_Pages( parent, xref ); 
-	    
-		curPages	=	pages; 
-		return pages; 
-	} 
+    
+	  public function  HPDF_InsertPage  ( target : HPDF_Page) : HPDF_Page
+	  {
+		  var page 	: HPDF_Page;
+		  
+		  trace (" HPDF_InsertPage");
+		  
+		  if (!HPDF_HasDoc ())
+			  return null;
+		  
+		  if (!target.HPDF_Page_Validate ()) {
+			  throw new HPDF_Error ( "HPDF_InsertPage Document", HPDF_Error.HPDF_INVALID_PAGE, 0);
+		  }
+		  
+		  page = new HPDF_Page( xref );
+		  page.HPDF_Page_InsertBefore( target );
+		  
+		  pageList.HPDF_List_Insert( target, page ); 
+		  
+		  
+		  if ( compressionMode & HPDF_Consts.HPDF_COMP_TEXT)
+			  page.HPDF_Page_SetFilter ( HPDF_Stream.HPDF_STREAM_FILTER_FLATE_DECODE );
+		  
+		  return page;
+	  }
 	
 	
 	
-	public	function	HPDF_SaveToStream  () : void
-	{
-	    trace (" HPDF_SaveToStream");
 	
-	   if (!stream)
-	        stream = new HPDF_MemStream(); 
-	       
-	   // mod PC
-	   if (!encryptDict)
-		   encryptDict = new HPDF_EncryptDict ( xref );
+	/*****************************************************************************
+	 * FONT HANDLING
+	 * **************************************************************************/
 	
-	    if (!stream) // .HPDF_Stream_Validate ( ))
-	    {
-	    	throw new HPDF_Error( "HPDF_SaveToStream" , HPDF_Error.HPDF_INVALID_STREAM, 0 );
-	    }
-		(stream as HPDF_MemStream ).HPDF_MemStream_FreeData( );
-	    
-	    InternalSaveToStream ( stream );
-	}
-	
-	private function HPDF_Doc_PrepareEncryption  ():void
-	{
-		var e:HPDF_Encrypt	=	 encryptDict.HPDF_EncryptDict_GetAttr();
+	  
+	 public function FreeFontDefList  ():void
+	 {
+		var list	: HPDF_List = this.fontdefList;
+		var i 		: uint; 
 		
-		var id : HPDF_Array;
-		
-		
-		encryptDict.HPDF_EncryptDict_Prepare (info,xref);
-		
-		/* reset 'ID' to trailer-dictionary */
-		id = trailer.HPDF_Dict_GetItem ("ID", HPDF_Obj_Header.HPDF_OCLASS_ARRAY) as HPDF_Array;
-		if ( id == null )
-		{
-			id = new HPDF_Array ();
-			
-			trailer.HPDF_Dict_Add ( "ID", id);
-		} else
-			id.HPDF_Array_Clear ();
-		
-		trace("encrypt id  " + e.encryptId[0].toString() + " " + e.encryptId[1].toString() );
-		id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId) ) ; //, HPDF_ID_LEN) );
-		
-		id.HPDF_Array_Add ( new HPDF_Binary ( e.encryptId )) ; // , HPDF_ID_LEN) );
-	}
-	
-	public	function	InternalSaveToStream  ( stream  :HPDF_Stream  ) : void
-	{
-	    WriteHeader( stream );
-	    /* prepare trailer */
-	    PrepareTrailer ();
-	    
-	    var e:HPDF_Encrypt = encryptDict. HPDF_EncryptDict_GetAttr ();
-	
-	    HPDF_Doc_PrepareEncryption ();
-			
-		/* prepare encription */
-		if (encryptOn)
-		{
-	        xref.HPDF_Xref_WriteToStream (stream, e);
-	    } 
-		else 
-	    	xref.HPDF_Xref_WriteToStream (stream, null);
-	}
-	
-	
-	/******** WRITE FUNCTIONS ************/
-	private	function	WriteHeader( stream : HPDF_Stream ) : void
-	{
-		
-		var idx : uint = pdfVersion ;
-
-    	trace ((" WriteHeader\n"));
-    	var h:HPDF_Utils; 
-    	var str:String	=	HPDF_Utils.ParseString( HPDF_VERSION_STR[idx] )
-    	stream.HPDF_Stream_WriteStr ( str );
-
- 	}
- 	
- 	private	function	PrepareTrailer  ( ) : void
- 	{
-		
-    	trace (" PrepareTrailer");
-		trailer.HPDF_Dict_Add("Root", catalog );
-	    trailer.HPDF_Dict_Add("Info", info );
-	
+		trace (" HPDF_Doc_FreeFontDefList");
+		  
+		for (i = 0; i < list.count; i++) {
+			var def : HPDF_FontDef = list.HPDF_List_ItemAt( i ) as HPDF_FontDef;
+			def.HPDF_FontDef_Free();
+ 		}
+		  
+		list.HPDF_List_Free ();
+		this.fontdefList = null; 
 	 }
+	 
+	 public function CleanupFontDefList  ():void
+	 {
+		 var list	: HPDF_List = this.fontdefList;
+		 var i 		: uint; 
+		 
+		 trace (" HPDF_Doc_FreeFontDefList");
+		 
+		 for (i = 0; i < list.count; i++) {
+			 var def : HPDF_FontDef = list.HPDF_List_ItemAt( i ) as HPDF_FontDef;
+			 def.HPDF_FontDef_Cleanup();
+		 }
+		 
+	 }
+	 
+
+	 public	function	HPDF_Doc_FindFontDef  ( fontName : String ) : HPDF_FontDef
+	 {
+		 
+		 
+		 trace (" HPDF_Doc_FindFontDef");
+		 
+		 for (var i : int = 0; i < fontdefList.count; i++)
+		 {
+			 var  def: HPDF_FontDef = fontdefList.HPDF_List_ItemAt (i ) as HPDF_FontDef;
+			 
+			 if (fontName == def.baseFont )
+			 {
+				 if (def.type == HPDF_FontDefType.HPDF_FONTDEF_TYPE_UNINITIALIZED)
+				 {
+					 def.initFn( def ); 
+				 }
+				 
+				 return def;
+			 }
+		 }HPDF_FontDef
+		 
+		 return null;
+	 }
+	 
+	 
+	 public function HPDF_Doc_RegisterFontDef  ( fontdef:HPDF_FontDef ):void
+	 {
+		 
+		 trace (" HPDF_Doc_RegisterFontDef");
+		 
+		 
+		 if (HPDF_Doc_FindFontDef ( fontdef.baseFont) != null) {
+			 throw new HPDF_Error("HPDF_Doc_RegisterFontDef", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
+		 }
+		 
+		 this.fontdefList.HPDF_List_Add( fontdef );
+		 
+	 }
+	 
+	 
+	 public	function	HPDF_GetFontDef ( fontName : String ) : HPDF_FontDef
+	 {
+		 
+		 var	def : HPDF_FontDef ; 
+		 trace (" HPDF_GetFontDef");
+		 
+		 
+		 def = HPDF_Doc_FindFontDef ( fontName);
+		 
+		 if (!def) 
+		 {
+			 def = HPDF_FontDef.HPDF_Base14FontDef_New( fontName );
+			 
+			 if (!def)
+				 return null;
+			 
+			 fontdefList.HPDF_List_Add (def) ;
+		 }
+		 
+		 return def;
+	 }
+	 
+	 
+	 
+	 /********************************************************************
+	 * Encoder Handling
+	 * ********************************************************************/
+	 
+	
+	 public	function	HPDF_Doc_FindEncoder  ( encodingName : String ) : HPDF_Encoder
+	 {
+		 
+		 
+		 trace (" HPDF_Doc_FindEncoder");
+		 
+		 for (var i : int = 0; i < encoderList.count; i++)
+		 {
+			 var encoder: HPDF_Encoder = encoderList.HPDF_List_ItemAt ( i ) as HPDF_Encoder;
+			 
+			 if (encodingName == encoder.name ) 
+			 {
+				 /* if encoder is uninitialize, call init_fn() */
+				 if ( encoder.type == HPDF_EncoderType.HPDF_ENCODER_TYPE_UNINITIALIZED)
+				 {
+					 if ( encoder.initFn != null ) 
+						 encoder.initFn( encoder );
+				 }
+				 
+				 return encoder;
+			 }
+		 }
+		 return null ; 
+	 }
+	 
+	 
+	 
+	 public function HPDF_Doc_RegisterEncoder  ( encoder :HPDF_Encoder ):void
+	 {
+		 if (HPDF_Doc_FindEncoder ( encoder.name) != null) {
+			 throw new HPDF_Error("HPDF_Doc_RegisterEncoder", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
+		 }
+		 
+		 this.encoderList.HPDF_List_Add( encoder );
+		 
+	 }
+	 
+	 
+	 public	function	  HPDF_GetEncoder( encodingName : String ) : HPDF_Encoder
+	 {
+		 
+		 var	encoder : HPDF_Encoder;
+		 
+		 trace (" HPDF_GetEncoder");
+		 
+		 
+		 encoder = HPDF_Doc_FindEncoder ( encodingName);
+		 
+		 if (!encoder)
+		 {
+			 encoder = new HPDF_BasicEncoder ( encodingName );
+			 encoderList.HPDF_List_Add ( encoder );
+		 }
+		 
+		 return encoder;
+	 }
+	 
+	 
+	 public	function	  HPDF_GetCurrentEncoder( ) : HPDF_Encoder
+	 {
+		return curEncoder;
+	 }
+	 
+	 
+	 public	function	  HPDF_SetCurrentEncoder( encodingName : String ):void
+	 {
+		 var encoder		: HPDF_Encoder;
+		 
+		 encoder = HPDF_GetEncoder ( encodingName);
+		 curEncoder = encoder;
+	 }
+	 
+	 public	function	  FreeEncoderList( ) : void
+	 {
+		
+		 var list	: HPDF_List = this.encoderList;
+		 var i 		: uint; 
+		 
+		 trace (" FreeEncoderList");
+		 
+		 for (i = 0; i < list.count; i++) {
+			 var def : HPDF_Encoder = list.HPDF_List_ItemAt( i ) as HPDF_Encoder;
+			 def.HPDF_Encoder_Free();
+		 }
+		 
+		 list.HPDF_List_Free ();
+		 this.encoderList = null; 
+	 }
+	 
+	 
+	 
+	 /***********************************************
+	 * Font handling
+	 * **********************************************/
+	 
+	 
+	 
+	
 	 public	function	HPDF_GetVersion( ) :String
 	 {
 	 	return HPDF_VERSION_TEXT;	
@@ -599,97 +1043,13 @@ package com.fxpdf.doc
 	    return font;
 	} 
 	
-	public	function	HPDF_GetFontDef ( fontName : String ) : HPDF_FontDef
-	{
-		
-		
-	    var	def : HPDF_FontDef ; 
-	    trace (" HPDF_GetFontDef");
-	
-	   
-	    def = HPDF_Doc_FindFontDef ( fontName);
-	
-	    if (!def) 
-	    {
-	        def = HPDF_FontDef.HPDF_Base14FontDef_New( fontName );
-	
-	        if (!def)
-	            return null;
-	
-	        fontdefList.HPDF_List_Add (def) ;
-	    }
-	
-	    return def;
-	}
-	
-	public	function	  HPDF_GetEncoder( encodingName : String ) : HPDF_Encoder
-	{
-	    
-	    var	encoder : HPDF_Encoder;
-	    
-	    trace (" HPDF_GetEncoder");
-	
-	    
-	    encoder = HPDF_Doc_FindEncoder ( encodingName);
-	
-	    if (!encoder)
-	    {
-	        encoder = new HPDF_BasicEncoder ( encodingName );
-	        encoderList.HPDF_List_Add ( encoder );
-	    }
-	
-	    return encoder;
-	}
 	
 	
-	public	function	HPDF_Doc_FindEncoder  ( encodingName : String ) : HPDF_Encoder
-	{
-	    
 	
-	    trace (" HPDF_Doc_FindEncoder");
 	
-	    for (var i : int = 0; i < encoderList.count; i++)
-	    {
-	        var encoder: HPDF_Encoder = encoderList.HPDF_List_ItemAt ( i ) as HPDF_Encoder;
 	
-	        if (encodingName == encoder.name ) 
-			{
-	            /* if encoder is uninitialize, call init_fn() */
-	            if ( encoder.type == HPDF_EncoderType.HPDF_ENCODER_TYPE_UNINITIALIZED)
-	            {
-					if ( encoder.initFn != null ) 
-						encoder.initFn( encoder );
-	            }
 	
-	            return encoder;
-	        }
-	    }
-	    return null ; 
-	}
 	
-	public	function	HPDF_Doc_FindFontDef  ( fontName : String ) : HPDF_FontDef
-	{
-	    
-	
-	    trace (" HPDF_Doc_FindFontDef");
-	
-	    for (var i : int = 0; i < fontdefList.count; i++)
-	    {
-	        var  def: HPDF_FontDef = fontdefList.HPDF_List_ItemAt (i ) as HPDF_FontDef;
-	
-	        if (fontName == def.baseFont )
-	        {
-	            if (def.type == HPDF_FontDefType.HPDF_FONTDEF_TYPE_UNINITIALIZED)
-	            {
-	                def.initFn( def ); 
-	            }
-	
-	            return def;
-	        }
-	    }HPDF_FontDef
-	
-	    return null;
-	}
 	
 	public function	HPDF_Doc_FindFont  ( fontName : String, encodingName : String ) : HPDF_Font
 	{
@@ -846,42 +1206,9 @@ package com.fxpdf.doc
 		}
 		
 	
-		public function	HPDF_SetPassword  ( ownerPass : String, userPass : String ) :void
-		{
-			trace (" HPDF_SetPassword");
-			
-			if (!HPDF_HasDoc ())
-				throw new HPDF_Error("HPDF_SetPassword - invalid document");
-			
-			if (!encryptDict)
-				encryptDict = new HPDF_EncryptDict ( xref );
-			
-			encryptDict.HPDF_EncryptDict_SetPassword (ownerPass, userPass);
-			
-			HPDF_Doc_SetEncryptOn();
-			
-		}
 		
 		
-		public function HPDF_Doc_SetEncryptOn():void
-		{
-			trace (" HPDF_Doc_SetEncryptOn\n");
-			
-			if ( encryptOn ) 
-					return ; 
-			
-			if (!encryptDict) 
-				throw new HPDF_Error( "HPDF_Doc_SetEncryptOn",HPDF_Error.HPDF_DOC_ENCRYPTDICT_NOT_FOUND,0);
-			
-			if ( encryptDict.header.objId == HPDF_Obj_Header.HPDF_OTYPE_NONE)
-				xref.HPDF_Xref_Add ( encryptDict);
-			
-			trailer.HPDF_Dict_Add ("Encrypt", encryptDict);
-			
-			encryptOn = true; 
-
-		}
-
+		
 
 		
 		/**
@@ -892,30 +1219,8 @@ package com.fxpdf.doc
 			return HPDF_PngImage.LoadPngImageFromByteArray(this.xref, source ); 
 		}
 	 
-		
-		public function HPDF_Doc_RegisterEncoder  ( encoder :HPDF_Encoder ):void
-		{
-			if (HPDF_Doc_FindEncoder ( encoder.name) != null) {
-				throw new HPDF_Error("HPDF_Doc_RegisterEncoder", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
-			}
-			
-			this.encoderList.HPDF_List_Add( encoder );
-			
-		}
-		
-		public function HPDF_Doc_RegisterFontDef  ( fontdef:HPDF_FontDef ):void
-		{
-			
-			trace (" HPDF_Doc_RegisterFontDef");
-			
-		
-			if (HPDF_Doc_FindFontDef ( fontdef.baseFont) != null) {
-				throw new HPDF_Error("HPDF_Doc_RegisterFontDef", HPDF_Error.HPDF_DUPLICATE_REGISTRATION, 0);
-			}
-			
-			this.fontdefList.HPDF_List_Add( fontdef );
-			
-		}
+	
+	
 		
 		
 		public function HPDF_CreateExtGState():HPDF_ExtGState

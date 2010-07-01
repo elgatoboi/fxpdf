@@ -291,6 +291,12 @@ package com.fxpdf.encoder
 		{
 			return null; 	
 		}
+		
+		
+		public function HPDF_Encoder_Free():void
+		{
+			
+		}
 	}
 
 }

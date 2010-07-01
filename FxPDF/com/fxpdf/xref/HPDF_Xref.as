@@ -138,82 +138,85 @@ package com.fxpdf.xref
 		    return HPDF_Consts.HPDF_OK;
 		}
 				
-				
+		public	function	HPDF_Xref_Add( obj : Object): void
+		{
+			
+			trace((" HPDF_Xref_Add\n"));
+			
+			if (!obj) {
+				throw new HPDF_Error("HPDF_Xref_Add", HPDF_Error.HPDF_INVALID_OBJECT, 0);
+			}
+			
+			var header:HPDF_Obj_Header = obj.header as HPDF_Obj_Header; //(HPDF_Obj_Header *)obj;
+			
+			if (header.objId & HPDF_Obj_Header.HPDF_OTYPE_DIRECT ||
+				header.objId & HPDF_Obj_Header.HPDF_OTYPE_INDIRECT)
+			{
+				throw new HPDF_Error("HPDF_Xref_Add", HPDF_Error.HPDF_INVALID_OBJECT, 0);
+			}
+			
+			if (entries.length >= HPDF_Consts.HPDF_LIMIT_MAX_XREF_ELEMENT )
+			{
+				throw new HPDF_Error("HPDF_Xref_Add", HPDF_Error.HPDF_XREF_COUNT_ERR, 0);
+			}
+			
+			/* in the following, we have to dispose the object when an error is
+			* occured.
+			*/
+			
+			var entry : HPDF_Xref_Entry	=	new HPDF_Xref_Entry;
+			
+			/*if (HPDF_List_Add(xref->entries, entry) != HPDF_OK) {
+			HPDF_FreeMem (xref->mmgr, entry);
+			goto Fail;
+			}
+			*/
+			
+			entries.push( entry );
+			
+			entry.entryTyp	=	HPDF_IN_USE_ENTRY;
+			entry.byteOffset	=	0;
+			entry.genNo	=	0;
+			entry.obj	=	obj;
+			
+			header.objId	=	startOffset + entries.length -1 + HPDF_Obj_Header.HPDF_OTYPE_INDIRECT;
+			header.genNo	=	entry.genNo;
+			
+		}
+		
 		private	function	HPDF_Xref_GetEntry ( index : int ) : HPDF_Xref_Entry
 		{
 			return entries[index];
 		} 
 		
-		
-		public	function	HPDF_Xref_Add( obj : Object) : Number
+		public function HPDF_Xref_GetEntryByObjectId  ( objId : uint) : HPDF_Xref_Entry
 		{
+			var tmpXref		: HPDF_Xref = this;
 			
-			 //HPDF_XrefEntry entry;
-			   // HPDF_Obj_Header *header;
+			trace(" HPDF_Xref_GetEntryByObjectId");
 			
-			    trace((" HPDF_Xref_Add\n"));
+			while (tmpXref) {
+				var i : uint; 
+				
+				if (tmpXref.entries.length + tmpXref.startOffset > objId) {
+					throw new HPDF_Error("HPDF_Xref_GetEntryByObjectId", HPDF_Error.HPDF_INVALID_OBJ_ID, 0);
+				}
+				
+				if (tmpXref.startOffset < objId) {
+					for (i = 0; i < tmpXref.entries.length; i++) {
+						if (tmpXref.startOffset + i == objId) {
+							var entry : HPDF_Xref_Entry = tmpXref.HPDF_Xref_GetEntry( i ); 
+							return entry;
+						}
+					}
+				}
+				
+				tmpXref = tmpXref.prev;
+			}
 			
-			   /* TODO  if (!obj) {
-			        if (HPDF_Error_GetCode (xref->error) == HPDF_OK)
-			            return HPDF_SetError (xref->error, HPDF_INVALID_OBJECT, 0);
-			        else
-			            return HPDF_INVALID_OBJECT;
-			    }
-			    */
-			
-			   var header:HPDF_Obj_Header = obj.header as HPDF_Obj_Header; //(HPDF_Obj_Header *)obj;
-			
-			    if (header.objId & HPDF_Obj_Header.HPDF_OTYPE_DIRECT ||
-			            header.objId & HPDF_Obj_Header.HPDF_OTYPE_INDIRECT)
-					{
-				        return error.HPDF_SetError( HPDF_Error.HPDF_INVALID_OBJECT, 0);
-				 	}
-			
-			    if (entries.length >= HPDF_Consts.HPDF_LIMIT_MAX_XREF_ELEMENT )
-			    {
-			        
-			       // todo goto Fail;
-			       return error.HPDF_SetError(HPDF_Error.HPDF_XREF_COUNT_ERR, 0);; 
-			    }
-			
-			    /* in the following, we have to dispose the object when an error is
-			     * occured.
-			     */
-			
-			    //entry = (HPDF_XrefEntry)HPDF_GetMem (xref->mmgr,sizeof(HPDF_XrefEntry_Rec));
-			    var entry : HPDF_Xref_Entry	=	new HPDF_Xref_Entry;
-			    
-			    /*if (HPDF_List_Add(xref->entries, entry) != HPDF_OK) {
-			        HPDF_FreeMem (xref->mmgr, entry);
-			        goto Fail;
-			    }
-			    */
-			    entries.push( entry );
-			
-			   /* entry->entry_typ = HPDF_IN_USE_ENTRY;
-			    entry->byte_offset = 0;
-			    entry->gen_no = 0;
-			    entry->obj = obj;
-			    header->obj_id = xref->start_offset + xref->entries->count - 1 +
-			                    HPDF_OTYPE_INDIRECT;
-			
-			    header->gen_no = entry->gen_no;
-			    */
-			    entry.entryTyp	=	HPDF_IN_USE_ENTRY;
-			    entry.byteOffset	=	0;
-			    entry.genNo	=	0;
-			    entry.obj	=	obj;
-			    
-			    header.objId	=	startOffset + entries.length -1 + HPDF_Obj_Header.HPDF_OTYPE_INDIRECT;
-			    header.genNo	=	entry.genNo;
-			
-			    return HPDF_Consts.HPDF_OK;
-			
-			/*Fail:
-			    HPDF_Obj_ForceFree(xref->mmgr, obj);
-			    return HPDF_Error_GetCode (xref->error);
-			    */
+			return null;
 		}
+		
 		
 		
 		

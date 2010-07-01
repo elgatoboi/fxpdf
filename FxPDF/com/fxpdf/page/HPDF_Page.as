@@ -120,6 +120,40 @@ package com.fxpdf.page
 		  
 		}
 		
+		
+		public function	HPDF_Page_InsertBefore  ( target : HPDF_Page ) : void
+		{
+			var parent		: HPDF_Pages;
+			var kids		: HPDF_Array;
+			var attr		: HPDF_PageAttr;
+			
+			
+			trace(" HPDF_Page_InsertBefore");
+			
+			attr = target.attr as HPDF_PageAttr;
+			parent = attr.parent;
+			
+			if (!parent)
+				throw new HPDF_Error( "HPDF_Page_InsertBefore", HPDF_Error.HPDF_PAGE_CANNOT_SET_PARENT, 0);
+			
+			if ( HPDF_Dict_GetItem ( "Parent", HPDF_Obj_Header.HPDF_OCLASS_DICT) )
+				throw new HPDF_Error( "HPDF_Page_InsertBefore", HPDF_Error.HPDF_PAGE_CANNOT_SET_PARENT, 0);
+			
+			HPDF_Dict_Add ( "Parent", parent);
+				
+			
+			kids = parent.HPDF_Dict_GetItem ( "Kids", HPDF_Obj_Header.HPDF_OCLASS_ARRAY) as HPDF_Array;
+			if (!kids)
+				throw new HPDF_Error( "HPDF_Page_InsertBefore", HPDF_Error.HPDF_PAGES_MISSING_KIDS_ENTRY, 0);
+			
+			
+			attr = this.attr as HPDF_PageAttr;
+			attr.parent = parent;
+			
+			//kids.HPDF_Array_Insert ( target, this);
+		}
+		
+		
 		public	function	get pageAttr ( ) : HPDF_PageAttr
 		{
 			return attr as HPDF_PageAttr;

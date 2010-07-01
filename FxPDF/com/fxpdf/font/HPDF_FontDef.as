@@ -293,6 +293,11 @@ package com.fxpdf.font
 				
 			return advanceWidth;
 		}
+		
+		public function HPDF_FontDef_Cleanup():void
+		{
+			
+		}
 	}
 		
 	   

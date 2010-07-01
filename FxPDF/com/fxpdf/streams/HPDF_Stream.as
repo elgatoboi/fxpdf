@@ -943,15 +943,20 @@ package com.fxpdf.streams
 		
 		private function CheckError(z:ZStream, err:int, msg:String):void {
 				
-				if (err!=FZlib.Z_OK) {
-					/*if (z.msg!=null)
-					output.text+=(z.msg);
-					output.text=msg+" error: "+err;
-					*/
-					throw new Error(msg+" error: "+err, err);
-				}
-				
-			}       
+			if (err!=FZlib.Z_OK) {
+				/*if (z.msg!=null)
+				output.text+=(z.msg);
+				output.text=msg+" error: "+err;
+				*/
+				throw new Error(msg+" error: "+err, err);
+			}
+			
+		}    
+	
+		public function HPDF_Stream_Validate  () : Boolean
+		{
+			return true; 
+		}
 
 			
 }

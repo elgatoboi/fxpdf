@@ -112,22 +112,7 @@ HPDF_List_Insert  (HPDF_List  list,
                    void       *target,
                    void       *item)
 {
-    HPDF_INT target_idx = HPDF_List_Find (list, target);
-    void      *last_item = list->obj[list->count - 1];
-    HPDF_INT i;
-
-    HPDF_PTRACE((" HPDF_List_Insert\n"));
-
-    if (target_idx < 0)
-        return HPDF_ITEM_NOT_FOUND;
-
-    /* move the item of the list to behind one by one. */
-    for (i = list->count - 2; i >= target_idx; i--)
-        list->obj[i + 1] = list->obj[i];
-
-    list->obj[target_idx] = item;
-
-    return HPDF_List_Add (list, last_item);
+    rewr
 }
 
 /*
@@ -319,15 +304,6 @@ HPDF_INT32
 HPDF_List_Find  (HPDF_List  list,
                  void       *item)
 {
-    HPDF_UINT i;
-
-    HPDF_PTRACE((" HPDF_List_Find\n"));
-
-    for (i = 0; i < list->count; i++) {
-        if (list->obj[i] == item)
-            return i;
-    }
-
-    return -1;
+    rewr
 }
 

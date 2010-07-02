@@ -17,6 +17,7 @@
 			import demos.Ext_gstate_demo;
 			import demos.Encryption;
 			import demos.Permission;
+			import demos.Png_demo;
 			
 			import com.fxpdf.doc.HPDF_Doc;
 			import mx.controls.Alert;
@@ -53,6 +54,9 @@
 						break;	
 					case "permission":
 						pdfDoc = Permission.run(txtOwnerPassword.text, txtUserPassword.text ) ;
+						break;	
+					case "png_demo":
+						pdfDoc = Png_demo.run() ;
 						break;						
 					
 					
@@ -111,6 +115,8 @@
 			</mx:HBox>
 			
 			<mx:Button label="Extending states" click='runTest("ext_gstate");' />
+			
+			<mx:Button label="PNG demo" click='runTest("png_demo");' />
 		</mx:VBox> 		
 	</mx:HBox>
 	

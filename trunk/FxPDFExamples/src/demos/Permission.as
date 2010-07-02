@@ -23,10 +23,6 @@ package demos
 			
 			pdfDoc = new HPDF_Doc( ) ; 
 			
-			pdfDoc.HPDF_SetPassword ( ownerPassword, userPassword);
-			pdfDoc.HPDF_SetPermission ( HPDF_Consts.HPDF_ENABLE_READ);
-			pdfDoc.HPDF_SetEncryptionMode ( HPDF_EncryptMode.HPDF_ENCRYPT_R3, 16); 		
-			
 			/* Add a new page object. */ 
 			page = pdfDoc.HPDF_AddPage() ;
 			
@@ -45,8 +41,9 @@ package demos
 			page.HPDF_Page_ShowText ( text);
 			page.HPDF_Page_EndText ();
 			
-				
-			 			
+			pdfDoc.HPDF_SetPassword ( ownerPassword, userPassword);
+			pdfDoc.HPDF_SetPermission ( HPDF_Consts.HPDF_ENABLE_READ);
+			//pdfDoc.HPDF_SetEncryptionMode ( HPDF_EncryptMode.HPDF_ENCRYPT_R3, 16); 					 			
 			
 			return pdfDoc; 
 		}

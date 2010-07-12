@@ -43,7 +43,7 @@ package demos
 			
 			pdfDoc.HPDF_SetPassword ( ownerPassword, userPassword);
 			pdfDoc.HPDF_SetPermission ( HPDF_Consts.HPDF_ENABLE_READ);
-			//pdfDoc.HPDF_SetEncryptionMode ( HPDF_EncryptMode.HPDF_ENCRYPT_R3, 16); 					 			
+			pdfDoc.HPDF_SetEncryptionMode ( HPDF_EncryptMode.HPDF_ENCRYPT_R3, 16); 					 			
 			
 			return pdfDoc; 
 		}

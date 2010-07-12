@@ -62,7 +62,7 @@ package com.fxpdf.image
 		public var resourceId:int;
 		public var n:int;
 		public var colorSpace 			: int;
-		public var bitsPerComponent:int = 8;
+		public var bitsPerComponent		: int = 8;
 		public var transparency:String;
 		public var parameters:String;
 		public var pal:String;

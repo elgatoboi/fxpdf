@@ -514,6 +514,7 @@ package com.fxpdf.image
 				bpc = 8;
 			
 			//var img: ImageElement;
+			bitsPerComponent = bpc; 
 			
 			if ( image != null )
 			{

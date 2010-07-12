@@ -508,6 +508,7 @@ package com.fxpdf.encrypt
 			trace("@ Algorithm 3.3 step 2");
 			
 			HPDF_MD5Final(digest, md5_ctx);
+			trace("digest after: " , digest[0].toString(), digest[1].toString(), digest[2].toString() ); 
 			
 			/* Algorithm 3.3 step 3 (Revision 3 only) */
 			if ( this.mode == HPDF_EncryptMode.HPDF_ENCRYPT_R3) {
@@ -516,7 +517,7 @@ package com.fxpdf.encrypt
 					md5_ctx.HPDF_MD5Init();
 					HPDF_MD5Update (md5_ctx, digest, keyLen);
 					HPDF_MD5Final(digest, md5_ctx);
-					
+					trace("digest after 3.3: " , digest[0].toString(), digest[1].toString(), digest[2].toString() ); 
 					trace("@ Algorithm 3.3 step 3 loop "+ i.toString());
 				}
 			}
@@ -525,6 +526,7 @@ package com.fxpdf.encrypt
 			trace("@ Algorithm 3.3 step 7 loop 0");
 			rc4_ctx = new HPDF_ARC4_Ctx;
 			ARC4Init (rc4_ctx, digest, this.keyLen);
+			trace("digest after 3.3 step 7 : " , digest[0].toString(), digest[1].toString(), digest[2].toString() );
 			
 			trace(("@ Algorithm 3.3 step 5"));
 			
@@ -542,15 +544,21 @@ package com.fxpdf.encrypt
 					
 					var new_key			:ByteArray = new ByteArray;
 					
-					for (j = 0; j < this.keyLen; j++) 
+					for (j = 0; j < this.keyLen; j++) {
+						trace("new key writing byte : " , (digest[j] ^ i ).toString());
 						new_key.writeByte( digest[j] ^ i );
+					}
 					
 					trace("@ Algorithm 3.3 step 7 loop " + i.toString());
 					
-					tmppwd2.writeBytes( tmppwd, 0, tmppwd.length );
+					tmppwd2 = new ByteArray();
+					tmppwd2.writeBytes( tmppwd, 0, HPDF_PASSWD_LEN );
+					
 					ARC4Init(rc4_ctx, new_key, this.keyLen);
 					rc4_ctx.ARC4CryptBuf( tmppwd2, tmppwd, HPDF_PASSWD_LEN);
+					trace("tmppwd after: " + tmppwd[0].toString(), tmppwd[1].toString() ); 
 				}
+				
 			}
 			
 			/* Algorithm 3.3 step 8 */
@@ -653,6 +661,7 @@ package com.fxpdf.encrypt
 					for (j = 0; j < this.keyLen; j++)
 						newKey[j] = this.encryptionKey[j] ^ i;
 					
+					digest.position = 0; 
 					digest.writeBytes( digest2, 0,HPDF_MD5_KEY_LEN);
 					
 					ARC4Init( ctx, newKey, this.keyLen);

@@ -70,10 +70,10 @@ package com.fxpdf.dict
 				rect.bottom = tmp;
 			}
 			
-			array.HPDF_Array_AddReal ( rect.left);
-			array.HPDF_Array_AddReal ( rect.bottom);
-			array.HPDF_Array_AddReal ( rect.right);
-			array.HPDF_Array_AddReal ( rect.top);
+			array.HPDF_Array_AddReal ( rect.left );
+			array.HPDF_Array_AddReal ( rect.bottom );
+			array.HPDF_Array_AddReal ( rect.right );
+			array.HPDF_Array_AddReal ( rect.top );
 			
 			HPDF_Dict_AddName ( "Type", "Annot");
 			HPDF_Dict_AddName ( "Subtype", HPDF_ANNOT_TYPE_NAMES[type]);
@@ -185,20 +185,20 @@ package com.fxpdf.dict
 			
 			array = new HPDF_Array();
 						
-			HPDF_Dict_Add ( "Border", array);
+			HPDF_Dict_Add ( "Border", array );
 			
-			array.HPDF_Array_AddNumber ( 0);
-			array.HPDF_Array_AddNumber ( 0);
-			array.HPDF_Array_AddReal ( width);
+			array.HPDF_Array_AddNumber ( 0 );
+			array.HPDF_Array_AddNumber ( 0 );
+			array.HPDF_Array_AddReal ( width );
 			
 			
 			if (dash_on && dash_off) {
 				var dash	: HPDF_Array = new HPDF_Array();
 				
-				array.HPDF_Array_Add ( dash);
+				array.HPDF_Array_Add ( dash );
 				
-				dash.HPDF_Array_AddNumber (dash_on);
-				dash.HPDF_Array_AddNumber ( dash_off);
+				dash.HPDF_Array_AddNumber ( dash_on );
+				dash.HPDF_Array_AddNumber ( dash_off );
 			}
 			
 		}

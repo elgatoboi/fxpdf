@@ -48,14 +48,26 @@ package com.fxpdf.image
 	import com.fxpdf.HPDF_Utils;
 	import com.fxpdf.dict.HPDF_Dict;
 	import com.fxpdf.dict.HPDF_DictStream;
+	import com.fxpdf.dict.HPDF_Null;
 	import com.fxpdf.error.HPDF_Error;
+	import com.fxpdf.objects.HPDF_Array;
+	import com.fxpdf.objects.HPDF_Boolean;
+	import com.fxpdf.objects.HPDF_Name;
+	import com.fxpdf.objects.HPDF_Number;
 	import com.fxpdf.objects.HPDF_Obj_Header;
+	import com.fxpdf.types.HPDF_Point;
 	import com.fxpdf.xref.HPDF_Xref;
 	
 	import flash.utils.ByteArray;
 
 	public class HPDF_Image extends HPDF_DictStream
 	{
+		
+		public static const COL_CMYK	: String = "DeviceCMYK";
+		public static const COL_RGB		: String = "DeviceRGB";
+		public static const COL_GRAY	: String = "DeviceGray";
+
+		
 		
 		public var width:int;
 		public var height:int;
@@ -83,6 +95,116 @@ package com.fxpdf.image
 		}
 		
 		
+		public function HPDF_Image_GetWidth  ()
+		{
+			return HPDF_Image_GetSize().x;
+		}
+		
+		public function HPDF_Image_GetHeight  ()
+		{
+			return HPDF_Image_GetSize().y;
+		}
+		
+		public function HPDF_Image_GetSize(): HPDF_Point
+		{
+			var width : HPDF_Number;
+			var height : HPDF_Number;
+			var ret		: HPDF_Point = new HPDF_Point();
+			
+			trace ((" HPDF_Image_GetSize\n"));
+			
+			
+			width = HPDF_Dict_GetItem ( "Width", HPDF_Obj_Header.HPDF_OCLASS_NUMBER) as HPDF_Number;
+			height = HPDF_Dict_GetItem ( "Height",  HPDF_Obj_Header.HPDF_OCLASS_NUMBER) as HPDF_Number;
+			
+			if (width && height) {
+				ret.x = width.value;
+				ret.y = height.value;
+			}
+			
+			return ret;
+		}
+		
+		public function HPDF_Image_SetMaskImage  ( maskImage : HPDF_Image ) : void 
+		{
+			
+			maskImage.HPDF_Image_SetMask ( true);
+			
+			return HPDF_Dict_Add ( "Mask", maskImage);
+		}
+		
+		public function HPDF_Image_SetMask ( mask : Boolean ) : void
+		{
+			var image_mask : HPDF_Boolean;  
+			
+			if (mask && HPDF_Image_GetBitsPerComponent () != 1)
+				throw new HPDF_Error("HPDF_Image_SetMask", HPDF_Error.HPDF_INVALID_BIT_PER_COMPONENT,				0);
+			
+			image_mask = HPDF_Dict_GetItem ( "ImageMask", HPDF_Obj_Header.HPDF_OCLASS_BOOLEAN ) as HPDF_Boolean;
+			if (!image_mask) {
+				image_mask = new HPDF_Boolean ( );
+				
+				HPDF_Dict_Add ( "ImageMask", image_mask)
+			}
+			
+			image_mask.value = mask;
+		}
+		
+		public function HPDF_Image_GetBitsPerComponent ()  : int 
+		{
+			return bitsPerComponent;
+		}
+		
+		
+		public function HPDF_Image_GetColorSpace(): String
+		{
+			var n : HPDF_Name;
+			
+			trace (" HPDF_Image_GetColorSpace");
+			
+			n = HPDF_Dict_GetItem ( "ColorSpace", HPDF_Obj_Header.HPDF_OCLASS_NAME) as HPDF_Name;
+			
+			if (!n) {
+				return null; 
+			}
+			
+			return n.value;
+		}
+		public function HPDF_Image_SetColorMask ( rmin  :uint, rmax : uint , gmin : uint , gmax : uint, bmin : uint , bmax : uint ) : void
+		{
+			var array 			: HPDF_Array;
+			var name			: String; 
+			
+			
+			if ( HPDF_Dict_GetItem ("ImageMask", HPDF_Obj_Header.HPDF_OCLASS_BOOLEAN))
+				throw new HPDF_Error("HPDF_Image_SetColorMask", HPDF_Error.HPDF_INVALID_OPERATION, 0);
+			
+			if (  HPDF_Image_GetBitsPerComponent() != 8)
+				throw new HPDF_Error("HPDF_Image_SetColorMask", HPDF_Error.HPDF_INVALID_BIT_PER_COMPONENT, 0);
+			
+			name = HPDF_Image_GetColorSpace ();
+			if (!name || COL_RGB != name)
+				throw new HPDF_Error("HPDF_Image_SetColorMask", HPDF_Error.HPDF_INVALID_COLOR_SPACE, 0);
+				
+			/* Each integer must be in the range 0 to 2^BitsPerComponent - 1 */
+			if (rmax > 255 || gmax > 255 || bmax > 255)
+				throw new HPDF_Error("HPDF_Image_SetColorMask", HPDF_Error.HPDF_INVALID_PARAMETER, 0);
+			
+			array = new HPDF_Array();
+			
+			HPDF_Dict_Add ( "Mask", array);
+			array.HPDF_Array_AddNumber ( rmin);
+			array.HPDF_Array_AddNumber (  rmax);
+			array.HPDF_Array_AddNumber (  gmin);
+			array.HPDF_Array_AddNumber (  gmax);
+			array.HPDF_Array_AddNumber (  bmin);
+			array.HPDF_Array_AddNumber (  bmax);
+			
+		}
+
+
+
+
 		
 		
 		

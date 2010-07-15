@@ -14,51 +14,54 @@ package demos
 	public class ImageDemo
 	{
 		
-	
+
 		[Embed(source="assets/pngsuite/basn0g01.png", mimeType="application/octet-stream")]
-		static var basn0g01:Class;
+		private static var basn0g01:Class;
 		
 		[Embed(source="assets/pngsuite/basn0g02.png", mimeType="application/octet-stream")]
-		static var basn0g02:Class;
+		private static var basn0g02:Class;
 		
 		[Embed(source="assets/pngsuite/basn0g04.png", mimeType="application/octet-stream")]
-		static var basn0g04:Class;
+		private static var basn0g04:Class;
 		
 		[Embed(source="assets/pngsuite/basn0g08.png", mimeType="application/octet-stream")]
-		static var basn0g08:Class;
+		private static var basn0g08:Class;
 		
 		[Embed(source="assets/pngsuite/basn0g16.png", mimeType="application/octet-stream")]
-		static var basn0g16:Class;
+		private static var basn0g16:Class;
 		
 		[Embed(source="assets/pngsuite/basn2c08.png", mimeType="application/octet-stream")]
-		static var basn2c08:Class;
+		private static var basn2c08:Class;
 		
 		[Embed(source="assets/pngsuite/basn2c16.png", mimeType="application/octet-stream")]
-		static var basn2c16:Class;
+		private static var basn2c16:Class;
 		
 		[Embed(source="assets/pngsuite/basn3p01.png", mimeType="application/octet-stream")]
-		static var basn3p01:Class;
+		private static var basn3p01:Class;
 		
 		[Embed(source="assets/pngsuite/basn3p02.png", mimeType="application/octet-stream")]
-		static var basn3p02:Class;
+		private static var basn3p02:Class;
 		
 		[Embed(source="assets/pngsuite/basn3p04.png", mimeType="application/octet-stream")]
-		static var basn3p04:Class;
+		private static var basn3p04:Class;
+		
 		[Embed(source="assets/pngsuite/basn3p08.png", mimeType="application/octet-stream")]
-		static var basn3p08:Class;
+		private static var basn3p08:Class;
+		
 		[Embed(source="assets/pngsuite/basn4a08.png", mimeType="application/octet-stream")]
-		static var basn4a08:Class;
+		private static var basn4a08:Class;
+		
 		[Embed(source="assets/pngsuite/basn4a16.png", mimeType="application/octet-stream")]
-		static var basn4a16:Class;
+		private static var basn4a16:Class;
 		
 		[Embed(source="assets/pngsuite/basn6a08.png", mimeType="application/octet-stream")]
-		static var basn6a08:Class;
+		private static var basn6a08:Class;
 		
 		[Embed(source="assets/pngsuite/basn6a16.png", mimeType="application/octet-stream")]
-		static var basn6a16:Class;
+		private static var basn6a16:Class;
 		
 		[Embed(source="assets/pngsuite/maskimage.png", mimeType="application/octet-stream")]
-		static var maskimage:Class;
+		private static var maskimage:Class;
 		
 		public function ImageDemo()
 		{

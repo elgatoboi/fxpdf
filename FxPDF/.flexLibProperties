@@ -128,6 +128,14 @@
     <classEntry path="com.fxpdf.encoder.HPDF_UnicodeMap"/>
     <classEntry path="com.fxpdf.font.HPDF_FontAttr_Cid"/>
     <classEntry path="com.fxpdf.dict.HPDF_Null"/>
+    <classEntry path="com.fxpdf.image.HPDF_JpegImage"/>
+    <classEntry path="com.fxpdf.dict.HPDF_Annotation"/>
+    <classEntry path="com.fxpdf.types.enum.HPDF_AnnotType"/>
+    <classEntry path="com.fxpdf.types.HPDF_Rect"/>
+    <classEntry path="com.fxpdf.types.enum.HPDF_BSSubtype"/>
+    <classEntry path="com.fxpdf.types.enum.HPDF_AnnotHighlightMode"/>
+    <classEntry path="com.fxpdf.types.enum.HPDF_AnnotIcon"/>
+    <classEntry path="com.fxpdf.types.enum.HPDF_TransitionStyle"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

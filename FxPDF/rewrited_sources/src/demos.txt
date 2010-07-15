@@ -1,0 +1,26 @@
+2006-07-28  17:00             3˙207 arc_demo.c         X
+2006-07-28  17:00             8˙367 character_map.c    (wykorzystuje jap fonty)
+2006-07-28  17:00             3˙562 chfont_demo.c      ( mamy chinese demo )     
+2006-07-28  17:00             6˙349 encoding_list.c     X
+2006-07-28  17:00             2˙243 encryption.c        X
+2006-10-02  06:56             6˙887 ext_gstate_demo.c   X
+2006-07-28  17:00             3˙441 font_demo.c         X
+2006-07-28  17:00             4˙763 grid_sheet.c        wykorzystwywany w kilku demo - tylko kratka
+2009-11-12  13:02             4˙125 images1.c           osadzanie jpg wykorzystane w grono
+2006-07-28  17:00             7˙018 image_demo.c        X
+2006-09-26  06:16             3˙374 jpeg_demo.c			X		
+2006-07-28  17:00             6˙318 jpfont_demo.c		nie robimy jp
+2006-07-28  17:00            10˙512 line_demo.c			X
+2006-09-26  06:08             7˙235 link_annotation.c   X
+2006-07-28  17:00             2˙421 make_rawimage.c
+2006-07-28  17:00             3˙613 outline_demo.c      X
+2006-07-28  17:00             3˙973 outline_demo_jp.c   japan
+2006-07-28  17:00             2˙347 permission.c        X
+2006-07-28  17:00             4˙917 png_demo.c          X
+2006-07-28  17:00             4˙144 raw_image_demo.c    
+2006-10-01  08:14             6˙230 slide_show_demo.c   X
+2006-07-28  17:00            11˙096 text_demo.c         X
+2006-07-28  17:00             7˙428 text_demo2.c        X
+2010-01-12  12:36             4˙901 ttf.c               X
+2006-07-28  17:00             4˙003 ttfont_demo.c       X
+2006-07-28  17:00             4˙813 ttfont_demo_jp.c    japan

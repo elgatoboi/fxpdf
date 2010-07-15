@@ -22,6 +22,7 @@ package com.fxpdf.catalog
 	import com.fxpdf.objects.HPDF_Obj_Header;
 	import com.fxpdf.objects.HPDF_Pages;
 	import com.fxpdf.streams.HPDF_Stream;
+	import com.fxpdf.types.HPDF_Destination;
 	import com.fxpdf.xref.HPDF_Xref;
 	
 	public class HPDF_Catalog extends HPDF_Dict
@@ -76,7 +77,16 @@ package com.fxpdf.catalog
         	HPDF_Dict_AddName( "PageMode",  HPDF_PAGE_MODE_NAMES[mode] ); 	
 		}
     
-     
+		
+		public function HPDF_Catalog_SetOpenAction  ( openAction : HPDF_Destination ) : void
+		{
+			if (!openAction) {
+				HPDF_Dict_RemoveElement ("OpenAction");
+			}
+			
+			return HPDF_Dict_Add ("OpenAction", openAction);
+		}
+
 		
 		override	public	function	beforeWriteFn( ) : void
 		{

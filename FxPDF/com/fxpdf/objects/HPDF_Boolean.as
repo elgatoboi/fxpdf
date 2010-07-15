@@ -23,8 +23,10 @@ package com.fxpdf.objects
 		
 		public	var	value : Boolean; 
 		
-		public function HPDF_Boolean()
+		public function HPDF_Boolean( val : Boolean = false)
 		{
+			this.header.objClass = HPDF_Obj_Header.HPDF_OCLASS_BOOLEAN;
+			value = val; 
 		}
 
 	}

@@ -664,25 +664,7 @@ static HPDF_STATUS
 AddAnnotation  (HPDF_Page        page,
                 HPDF_Annotation  annot)
 {
-    HPDF_Array array;
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE((" HPDF_Pages\n"));
-
-    /* find "Annots" entry */
-    array = HPDF_Dict_GetItem (page, "Annots", HPDF_OCLASS_ARRAY);
-
-    if (!array) {
-        array = HPDF_Array_New (page->mmgr);
-        if (!array)
-            return HPDF_Error_GetCode (page->error);
-
-        ret = HPDF_Dict_Add (page, "Annots", array);
-        if (ret != HPDF_OK)
-            return ret;
-    }
-
-    return HPDF_Array_Add (array, annot);
+    rewr
 }
 
 
@@ -1433,31 +1415,7 @@ HPDF_Page_CreateLinkAnnot  (HPDF_Page          page,
                             HPDF_Rect          rect,
                             HPDF_Destination   dst)
 {
-    HPDF_PageAttr attr;
-    HPDF_Annotation annot;
-
-    HPDF_PTRACE((" HPDF_Page_CreateLinkAnnot\n"));
-
-    if (!HPDF_Page_Validate (page))
-        return NULL;
-
-    attr = (HPDF_PageAttr)page->attr;
-
-    if (!HPDF_Destination_Validate (dst)) {
-        HPDF_RaiseError (page->error, HPDF_INVALID_DESTINATION, 0);
-        return NULL;
-    }
-
-    annot = HPDF_LinkAnnot_New (page->mmgr, attr->xref, rect, dst);
-    if (annot) {
-        if (AddAnnotation (page, annot) != HPDF_OK) {
-            HPDF_CheckError (page->error);
-            annot = NULL;
-        }
-    } else
-        HPDF_CheckError (page->error);
-
-    return annot;
+   rewr
 }
 
 

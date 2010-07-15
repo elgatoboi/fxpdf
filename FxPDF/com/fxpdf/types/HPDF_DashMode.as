@@ -22,11 +22,11 @@ package com.fxpdf.types
 	public class HPDF_DashMode
 	{
 		
-		public	var	ptn : Vector.<Number>;
+		public	var	ptn : Vector.<uint>;
     	public	var	numPtn : Number; 
     	public	var	phase : Number ; 
     	 
-		public function HPDF_DashMode( ptn : Vector.<Number> =null , numPtn : Number=0, phase : Number=0 )
+		public function HPDF_DashMode( ptn : Vector.<uint> =null , numPtn : Number=0, phase : Number=0 )
 		{
 				this.ptn	=	ptn; 
 				this.numPtn	=	numPtn ; 
@@ -35,7 +35,7 @@ package com.fxpdf.types
 		public	static function getZeroDashMode ( ) : HPDF_DashMode
 		{
 			var ret : HPDF_DashMode	=	new HPDF_DashMode();
-			ret.ptn	=	new Vector.<Number> ; //[ new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0)];
+			ret.ptn	=	new Vector.<uint>(8) ; //[ new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0),new Number(0)];
 			ret.numPtn	=	0;
 			ret.phase	=	0; 
 			return ret; 

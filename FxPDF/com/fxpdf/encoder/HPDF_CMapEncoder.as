@@ -127,7 +127,7 @@ package  com.fxpdf.encoder
 	}
 	
 	
-	public function HPDF_CMapEncoder_AddCMap  ( trange:Array )
+	public function HPDF_CMapEncoder_AddCMap  ( trange:Array ):void
 	{
 		var attr:HPDF_CMapEncoderAttr = this.attr as HPDF_CMapEncoderAttr;
 		
@@ -170,7 +170,7 @@ package  com.fxpdf.encoder
 		for ( var i : int = 0; i < 256; i++ ) { 
 			for( var j : int = 0; j < 256; j++ ) { 
 				if ( attr.unicodeMap[i][j] == value )  {
-					var ret = j << 8;
+					var ret:uint = j << 8;
 					ret += i ; 
 					return  ret; 
 				}

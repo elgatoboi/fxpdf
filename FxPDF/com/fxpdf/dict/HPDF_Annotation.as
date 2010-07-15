@@ -247,7 +247,7 @@ package com.fxpdf.dict
 		}
 		
 		
-		public function HPDF_TextAnnot_SetIcon  (annot : HPDF_Annotation , icon : uint ) 
+		public function HPDF_TextAnnot_SetIcon  (annot : HPDF_Annotation , icon : uint ) : void
 		{
 			trace((" HPDF_TextAnnot_SetIcon\n"));
 			
@@ -261,7 +261,7 @@ package com.fxpdf.dict
 		}
 		
 		
-		public function HPDF_TextAnnot_SetOpened  (annot : HPDF_Annotation , opened : HPDF_Boolean ) 
+		public function HPDF_TextAnnot_SetOpened  (annot : HPDF_Annotation , opened : HPDF_Boolean ) : void
 		{
 			var b: HPDF_Boolean; 
 			
@@ -270,7 +270,7 @@ package com.fxpdf.dict
 			if (!annot.CheckSubType ( HPDF_AnnotType.HPDF_ANNOT_TEXT_NOTES))
 				throw new HPDF_Error("HPDF_INVALID_ANNOTATION");
 			
-			b = new HPDF_Boolean (opened);
+			b = new HPDF_Boolean (opened.value);
 			
 			annot.HPDF_Dict_Add ( "Open", b);
 		}

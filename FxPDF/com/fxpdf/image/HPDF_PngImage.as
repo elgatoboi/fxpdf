@@ -519,10 +519,10 @@ package com.fxpdf.image
 			if ( image != null )
 			{
 				if ( colorType == 3 )
+					null;
 					//img = new ImageRaw( null, width, height, components, bpc, image.buffer );
-					var ii = 0; 
 				else
-					var ii = 1; 
+					null;
 					//img = ImageElement.getRawInstance( width, height, components, bpc, image.buffer );
 			}
 			else

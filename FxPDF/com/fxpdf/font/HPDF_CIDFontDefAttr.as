@@ -4,9 +4,9 @@ package com.fxpdf.font
 
 	public class HPDF_CIDFontDefAttr
 	{
-		var widths			:HPDF_List;
-		var DW				: int; 
-		var DW2				: Vector.<int> = new Vector.<int>(2);
+		public var widths			:HPDF_List;
+		public var DW				: int; 
+		public var DW2				: Vector.<int> = new Vector.<int>(2);
 		 
 	}
 }

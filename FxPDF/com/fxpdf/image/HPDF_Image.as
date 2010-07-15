@@ -95,12 +95,12 @@ package com.fxpdf.image
 		}
 		
 		
-		public function HPDF_Image_GetWidth  ()
+		public function HPDF_Image_GetWidth  ():Number
 		{
 			return HPDF_Image_GetSize().x;
 		}
 		
-		public function HPDF_Image_GetHeight  ()
+		public function HPDF_Image_GetHeight  ():Number
 		{
 			return HPDF_Image_GetSize().y;
 		}

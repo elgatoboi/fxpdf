@@ -110,7 +110,7 @@ package com.fxpdf.font
 			
 			/* 2006.08.19 add. */
 			if ( HPDF_Utils.HPDF_IS_WHITE_SPACE(b))
-				; /* do nothing. */
+				null; /* do nothing. */
 			else
 				tw.numwords++;
 			

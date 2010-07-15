@@ -59,48 +59,7 @@ HPDF_Annotation_New  (HPDF_MMgr       mmgr,
                       HPDF_AnnotType  type,
                       HPDF_Rect       rect)
 {
-    HPDF_Annotation annot;
-    HPDF_Array array;
-    HPDF_STATUS ret = HPDF_OK;
-    HPDF_REAL tmp;
-
-    HPDF_PTRACE((" HPDF_Annotation_New\n"));
-
-    annot = HPDF_Dict_New (mmgr);
-    if (!annot)
-        return NULL;
-
-    if (HPDF_Xref_Add (xref, annot) != HPDF_OK)
-        return NULL;
-
-    array = HPDF_Array_New (mmgr);
-    if (!array)
-        return NULL;
-
-    if (HPDF_Dict_Add (annot, "Rect", array) != HPDF_OK)
-        return NULL;
-
-    if (rect.top < rect.bottom) {
-        tmp = rect.top;
-        rect.top = rect.bottom;
-        rect.bottom = tmp;
-    }
-
-    ret += HPDF_Array_AddReal (array, rect.left);
-    ret += HPDF_Array_AddReal (array, rect.bottom);
-    ret += HPDF_Array_AddReal (array, rect.right);
-    ret += HPDF_Array_AddReal (array, rect.top);
-
-    ret += HPDF_Dict_AddName (annot, "Type", "Annot");
-    ret += HPDF_Dict_AddName (annot, "Subtype",
-                    HPDF_ANNOT_TYPE_NAMES[(HPDF_INT)type]);
-
-    if (ret != HPDF_OK)
-        return NULL;
-
-    annot->header.obj_class |= HPDF_OSUBCLASS_ANNOTATION;
-
-    return annot;
+    rewr
 }
 
 

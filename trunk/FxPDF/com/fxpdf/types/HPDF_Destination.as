@@ -104,6 +104,27 @@ package com.fxpdf.types
 			
 			return true; 
 		}
+		
+		
+		public function HPDF_Destination_SetFit  ():void
+		{
+			var target		: HPDF_Page;
+			
+			
+			trace((" HPDF_Destination_SetFit\n"));
+			
+			
+			target = HPDF_Array_GetItem ( 0, HPDF_Obj_Header.HPDF_OCLASS_DICT) as HPDF_Page;
+			
+			if (list.count > 1) {
+				HPDF_Array_Clear ();
+				HPDF_Array_Add ( target);
+			}
+			
+			HPDF_Array_AddName (HPDF_DESTINATION_TYPE_NAMES[HPDF_DestinationType.HPDF_FIT]);
+			
+		}
+
 
 		
 	}

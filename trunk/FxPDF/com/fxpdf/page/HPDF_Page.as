@@ -19,6 +19,7 @@ package com.fxpdf.page
 {
 	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.HPDF_Utils;
+	import com.fxpdf.dict.HPDF_Annotation;
 	import com.fxpdf.dict.HPDF_Dict;
 	import com.fxpdf.dict.HPDF_DictStream;
 	import com.fxpdf.error.HPDF_Error;
@@ -37,7 +38,9 @@ package com.fxpdf.page
 	import com.fxpdf.types.HPDF_Destination;
 	import com.fxpdf.types.HPDF_Point;
 	import com.fxpdf.types.HPDF_RGBColor;
+	import com.fxpdf.types.HPDF_Rect;
 	import com.fxpdf.types.enum.HPDF_ColorSpace;
+	import com.fxpdf.types.enum.HPDF_TransitionStyle;
 	import com.fxpdf.xref.HPDF_Xref;
 	
 	import flash.utils.ByteArray;
@@ -1279,6 +1282,175 @@ package com.fxpdf.page
 			}
 			else throw new Error("No bounding box found in the current EPS file");
 			
+			
+		}
+		
+		
+		public function HPDF_Page_CreateLinkAnnot  ( rect : HPDF_Rect , dst : HPDF_Destination ) : HPDF_Annotation
+		{
+			var attr 		: HPDF_PageAttr = this.attr as HPDF_PageAttr;
+			var annot		: HPDF_Annotation;
+			
+			trace(" HPDF_Page_CreateLinkAnnot");
+			
+			if (!HPDF_Page_Validate ())
+				return null;
+			
+			if (!dst.HPDF_Destination_Validate ()) {
+				throw new HPDF_Error("HPDF_Page_CreateLinkAnno", HPDF_Error.HPDF_INVALID_DESTINATION, 0);
+			}
+			
+			annot = HPDF_Annotation.HPDF_LinkAnnot_New (attr.xref, rect, dst);
+			AddAnnotation (annot);
+			
+			return annot;
+		}
+		
+		public function HPDF_Page_CreateURILinkAnnot  ( rect : HPDF_Rect , uri : String ) : HPDF_Annotation
+		{
+			var attr 		: HPDF_PageAttr = this.attr as HPDF_PageAttr;
+			var annot		: HPDF_Annotation;
+			
+			
+			trace((" HPDF_Page_CreateURILinkAnnot\n"));
+			
+			if (!HPDF_Page_Validate ())
+				return null;
+			
+			
+			if ( uri.length > HPDF_Consts.HPDF_LIMIT_MAX_STRING_LEN) { 
+				throw new HPDF_Error("HPDF_Page_CreateURILinkAnnot",HPDF_Error.HPDF_INVALID_URI, 0);
+			}
+			
+			annot = HPDF_Annotation.HPDF_URILinkAnnot_New (attr.xref, rect, uri);
+			AddAnnotation (annot);
+			
+				
+			return annot;
+		}
+
+		
+		
+		public function AddAnnotation  ( annot : HPDF_Annotation )  :void
+		{
+			var array		: HPDF_Array;
+			
+			trace(" HPDF_Pages");
+			
+			/* find "Annots" entry */
+			array = HPDF_Dict_GetItem ( "Annots", HPDF_Obj_Header.HPDF_OCLASS_ARRAY) as HPDF_Array;
+			
+			if (!array) {
+				array = new HPDF_Array();
+				
+				HPDF_Dict_Add ( "Annots", array);
+				
+			}
+			
+			array.HPDF_Array_Add ( annot);
+		}
+
+		public function HPDF_Page_SetSlideShow  ( type : uint , disp_time : Number, trans_time : Number ) : void 
+		{
+			
+			var dict		: HPDF_Dict;
+			
+			trace((" HPDF_Page_SetSlideShow\n"));
+			
+			
+			if (disp_time < 0)
+				throw new HPDF_Error("HPDF_Page_SetSlideShow",  HPDF_Error.HPDF_PAGE_INVALID_DISPLAY_TIME,disp_time);
+			
+			if (trans_time < 0)
+				throw new HPDF_Error("HPDF_Page_SetSlideShow",  HPDF_Error.HPDF_PAGE_INVALID_TRANSITION_TIME,trans_time);
+							
+			dict = new HPDF_Dict();
+			
+			
+			dict.HPDF_Dict_AddName ( "Type", "Trans");
+			
+			
+			dict.HPDF_Dict_AddReal ( "D", trans_time);
+			
+			switch (type) {
+				case HPDF_TransitionStyle.HPDF_TS_WIPE_RIGHT:
+					dict.HPDF_Dict_AddName ( "S", "Wipe");
+					dict.HPDF_Dict_AddNumber ( "Di", 0);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_WIPE_UP:
+					dict.HPDF_Dict_AddName ( "S", "Wipe");
+					dict.HPDF_Dict_AddNumber ( "Di", 90);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_WIPE_LEFT:
+					dict.HPDF_Dict_AddName ( "S", "Wipe");
+					dict.HPDF_Dict_AddNumber ( "Di", 180);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_WIPE_DOWN:
+					dict.HPDF_Dict_AddName ( "S", "Wipe");
+					dict.HPDF_Dict_AddNumber    ( "Di", 270);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BARN_DOORS_HORIZONTAL_OUT:
+					dict.HPDF_Dict_AddName ( "S", "Split");
+					dict.HPDF_Dict_AddName ( "Dm", "H");
+					dict.HPDF_Dict_AddName ( "M", "O");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BARN_DOORS_HORIZONTAL_IN:
+					dict.HPDF_Dict_AddName ( "S", "Split");
+					dict.HPDF_Dict_AddName ( "Dm", "H");
+					dict.HPDF_Dict_AddName ( "M", "I");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BARN_DOORS_VERTICAL_OUT:
+					dict.HPDF_Dict_AddName ( "S", "Split");
+					dict.HPDF_Dict_AddName ( "Dm", "V");
+					dict.HPDF_Dict_AddName ( "M", "O");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BARN_DOORS_VERTICAL_IN:
+					dict.HPDF_Dict_AddName ( "S", "Split");
+					dict.HPDF_Dict_AddName ( "Dm", "V");
+					dict.HPDF_Dict_AddName ( "M", "I");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BOX_OUT:
+					dict.HPDF_Dict_AddName ( "S", "Box");
+					dict.HPDF_Dict_AddName ( "M", "O");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BOX_IN:
+					dict.HPDF_Dict_AddName ( "S", "Box");
+					dict.HPDF_Dict_AddName ( "M", "I");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BLINDS_HORIZONTAL:
+					dict.HPDF_Dict_AddName ( "S", "Blinds");
+					dict.HPDF_Dict_AddName ( "Dm", "H");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_BLINDS_VERTICAL:
+					dict.HPDF_Dict_AddName ( "S", "Blinds");
+					dict.HPDF_Dict_AddName ( "Dm", "V");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_DISSOLVE:
+					dict.HPDF_Dict_AddName ( "S", "Dissolve");
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_GLITTER_RIGHT:
+					dict.HPDF_Dict_AddName ( "S", "Glitter");
+					dict.HPDF_Dict_AddNumber ( "Di", 0);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_GLITTER_DOWN:
+					dict.HPDF_Dict_AddName ( "S", "Glitter");
+					dict.HPDF_Dict_AddNumber ( "Di", 270);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_GLITTER_TOP_LEFT_TO_BOTTOM_RIGHT:
+					dict.HPDF_Dict_AddName ( "S", "Glitter");
+					dict.HPDF_Dict_AddNumber ( "Di", 315);
+					break;
+				case HPDF_TransitionStyle.HPDF_TS_REPLACE:
+					dict.HPDF_Dict_AddName  ( "S", "R");
+					break;
+				default:
+					null;
+			}
+			
+			HPDF_Dict_AddReal ( "Dur", disp_time);
+				
+			
+			HPDF_Dict_Add ( "Trans", dict);
 			
 		}
 		

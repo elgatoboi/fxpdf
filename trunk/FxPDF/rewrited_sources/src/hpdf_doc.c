@@ -1095,21 +1095,7 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_SetOpenAction  (HPDF_Doc            pdf,
                      HPDF_Destination    open_action)
 {
-    HPDF_STATUS ret;
-
-    HPDF_PTRACE ((" HPDF_SetOpenAction\n"));
-
-    if (!HPDF_HasDoc (pdf))
-        return HPDF_INVALID_DOCUMENT;
-
-    if (open_action && !HPDF_Destination_Validate (open_action))
-        return HPDF_RaiseError (&pdf->error, HPDF_INVALID_DESTINATION, 0);
-
-    ret = HPDF_Catalog_SetOpenAction (pdf->catalog, open_action);
-    if (ret != HPDF_OK)
-        return HPDF_CheckError (&pdf->error);
-
-    return HPDF_OK;
+   rewrt
 }
 
 

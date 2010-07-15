@@ -43,6 +43,7 @@ package com.fxpdf.doc
 	import com.fxpdf.font.ttf.HPDF_FontDef_TT;
 	import com.fxpdf.font.type1.HPDF_FontDef_Type1;
 	import com.fxpdf.gstate.HPDF_ExtGState;
+	import com.fxpdf.image.HPDF_JpegImage;
 	import com.fxpdf.image.HPDF_PngImage;
 	import com.fxpdf.objects.HPDF_Array;
 	import com.fxpdf.objects.HPDF_Binary;
@@ -52,6 +53,7 @@ package com.fxpdf.doc
 	import com.fxpdf.page.HPDF_Page;
 	import com.fxpdf.streams.HPDF_MemStream;
 	import com.fxpdf.streams.HPDF_Stream;
+	import com.fxpdf.types.HPDF_Destination;
 	import com.fxpdf.types.HPDF_EncryptMode;
 	import com.fxpdf.types.HPDF_PageMode;
 	import com.fxpdf.types.enum.HPDF_ColorSpace;
@@ -1218,6 +1220,12 @@ package com.fxpdf.doc
 		{
 			return HPDF_PngImage.LoadPngImageFromByteArray(this.xref, source ); 
 		}
+		
+		public function HPDF_LoadJpegImageFromFile( source : ByteArray ): HPDF_JpegImage
+		{
+			return HPDF_JpegImage.HPDF_LoadJpegImageFromFile(this.xref, source ); 
+		}
+			
 	 
 	
 	
@@ -1334,6 +1342,17 @@ package com.fxpdf.doc
 		}
 		
 
+		public function HPDF_SetOpenAction  ( openAction : HPDF_Destination ) : void
+		{
+			
+			trace (" HPDF_SetOpenAction");
+			
+			if (openAction && !openAction.HPDF_Destination_Validate ())
+				throw new HPDF_Error("HPDF_SetOpenAction" , HPDF_Error.HPDF_INVALID_DESTINATION , 0 );
+			
+			catalog.HPDF_Catalog_SetOpenAction (  openAction );
+			
+		}
  
 }
 	 

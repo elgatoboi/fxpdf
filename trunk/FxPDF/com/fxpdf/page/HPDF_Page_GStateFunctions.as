@@ -17,12 +17,15 @@ limitations under the License.
 */
 package com.fxpdf.page
 {
+	import com.fxpdf.HPDF_Conf;
 	import com.fxpdf.HPDF_Consts;
 	import com.fxpdf.HPDF_Utils;
 	import com.fxpdf.error.HPDF_Error;
 	import com.fxpdf.gstate.HPDF_ExtGState;
 	import com.fxpdf.gstate.HPDF_GState;
 	import com.fxpdf.objects.HPDF_Obj_Header;
+	import com.fxpdf.objects.HPDF_PageAttr;
+	import com.fxpdf.types.HPDF_DashMode;
 	import com.fxpdf.types.HPDF_LineCap;
 	import com.fxpdf.types.HPDF_TransMatrix;
 	import com.fxpdf.types.enum.HPDF_LineJoin;
@@ -124,7 +127,50 @@ package com.fxpdf.page
    		
    		public function HPDF_Page_SetDash( dashPtn:Vector.<uint>, numParam:uint, phase:uint ):void
    		{
-   			throw new HPDF_Error("HPDF_Page_SetDash is not yet implemented in LibHaruAS3");
+			page.HPDF_Page_CheckState ( HPDF_Consts.HPDF_GMODE_PAGE_DESCRIPTION | HPDF_Consts.HPDF_GMODE_TEXT_OBJECT);
+			trace (" HPDF_Page_SetDash");
+
+			var buf			: String;
+			var attr		: HPDF_PageAttr;
+			var i			: uint; 
+			var INIT_MODE : HPDF_DashMode = new HPDF_DashMode( new Vector.<uint>([0, 0, 0, 0, 0, 0, 0, 0]), 0, 0 );
+			//var dash
+			//const HPDF_UINT16 *pdash_ptn = dash_ptn;
+			
+			if (numParam != 1 && (numParam / 2) * 2 != numParam)
+				throw new HPDF_Error("HPDF_Page_SetDash", HPDF_Error.HPDF_PAGE_INVALID_PARAM_COUNT,	numParam);
+			
+			if (numParam == 0 && phase > 0)
+				throw new HPDF_Error("HPDF_Page_SetDash", HPDF_Error.HPDF_PAGE_OUT_OF_RANGE,	phase);
+				
+			if (!dashPtn && numParam > 0)
+				throw new HPDF_Error("HPDF_Page_SetDash", HPDF_Error.HPDF_INVALID_PARAMETER,	phase);
+							
+			buf = "[";
+			
+			for (i = 0; i < numParam; i++) {
+				if (dashPtn[i] == 0 || dashPtn[i] > HPDF_Consts.HPDF_MAX_DASH_PATTERN)
+					throw new HPDF_Error("HPDF_Page_SetDash", HPDF_Error.HPDF_PAGE_OUT_OF_RANGE,	0);
+				
+				buf += HPDF_Utils.HPDF_IToA( dashPtn[i] ) + " " ;
+			}
+			buf += "] ";
+			
+			buf += HPDF_Utils.HPDF_IToA( phase ) + " d " + HPDF_Utils.NEW_LINE; 
+			
+			attr = page.attr as HPDF_PageAttr;
+			
+			attr.stream.HPDF_Stream_WriteStr ( buf );
+			
+			attr.gstate.dashMode = INIT_MODE;
+			attr.gstate.dashMode.numPtn = numParam;
+			attr.gstate.dashMode.phase = phase;
+			
+			//pdash_ptn = dash_ptn;
+			for (i = 0; i < numParam; i++) {
+				//attr->gstate->dash_mode.ptn[i] = *pdash_ptn;
+				attr.gstate.dashMode.ptn[i] = dashPtn[i];
+			}
    		}
    		
    		public function HPDF_Page_SetFlat( flatness:Number ):void

@@ -181,66 +181,7 @@ HPDF_Page_SetDash  (HPDF_Page           page,
                     HPDF_UINT           num_param,
                     HPDF_UINT           phase)
 {
-    HPDF_STATUS ret = HPDF_Page_CheckState (page, HPDF_GMODE_PAGE_DESCRIPTION |
-                    HPDF_GMODE_TEXT_OBJECT);
-    char buf[HPDF_TMP_BUF_SIZ];
-    char *pbuf = buf;
-    char *eptr = buf + HPDF_TMP_BUF_SIZ - 1;
-    const HPDF_UINT16 *pdash_ptn = dash_ptn;
-    HPDF_PageAttr attr;
-    HPDF_UINT i;
-
-    HPDF_PTRACE ((" HPDF_Page_SetDash\n"));
-
-    if (ret != HPDF_OK)
-        return ret;
-
-    if (num_param != 1 && (num_param / 2) * 2 != num_param)
-        return HPDF_RaiseError (page->error, HPDF_PAGE_INVALID_PARAM_COUNT,
-                num_param);
-
-    if (num_param == 0 && phase > 0)
-        return HPDF_RaiseError (page->error, HPDF_PAGE_OUT_OF_RANGE,
-                phase);
-
-    if (!dash_ptn && num_param > 0)
-        return HPDF_RaiseError (page->error, HPDF_INVALID_PARAMETER,
-                phase);
-
-    HPDF_MemSet (buf, 0, HPDF_TMP_BUF_SIZ);
-    *pbuf++ = '[';
-
-    for (i = 0; i < num_param; i++) {
-        if (*pdash_ptn == 0 || *pdash_ptn > HPDF_MAX_DASH_PATTERN)
-            return HPDF_RaiseError (page->error, HPDF_PAGE_OUT_OF_RANGE, 0);
-
-        pbuf = HPDF_IToA (pbuf, *pdash_ptn, eptr);
-        *pbuf++ = ' ';
-        pdash_ptn++;
-    }
-
-    *pbuf++ = ']';
-    *pbuf++ = ' ';
-
-    pbuf = HPDF_IToA (pbuf, phase, eptr);
-    HPDF_StrCpy (pbuf, " d\012", eptr);
-
-    attr = (HPDF_PageAttr)page->attr;
-
-    if ((ret = HPDF_Stream_WriteStr (attr->stream, buf)) != HPDF_OK)
-        return HPDF_CheckError (page->error);
-
-    attr->gstate->dash_mode = INIT_MODE;
-    attr->gstate->dash_mode.num_ptn = num_param;
-    attr->gstate->dash_mode.phase = phase;
-
-    pdash_ptn = dash_ptn;
-    for (i = 0; i < num_param; i++) {
-        attr->gstate->dash_mode.ptn[i] = *pdash_ptn;
-        pdash_ptn++;
-    }
-
-    return ret;
+   rewr
 }
 
 

@@ -381,24 +381,7 @@ HPDF_Image_Validate (HPDF_Image  image)
 HPDF_EXPORT(HPDF_Point)
 HPDF_Image_GetSize (HPDF_Image  image)
 {
-    HPDF_Number width;
-    HPDF_Number height;
-    HPDF_Point ret = {0, 0};
-
-    HPDF_PTRACE ((" HPDF_Image_GetSize\n"));
-
-    if (!HPDF_Image_Validate (image))
-        return ret;
-
-    width = HPDF_Dict_GetItem (image, "Width", HPDF_OCLASS_NUMBER);
-    height = HPDF_Dict_GetItem (image, "Height", HPDF_OCLASS_NUMBER);
-
-    if (width && height) {
-      ret.x = width->value;
-      ret.y = height->value;
-    }
-
-    return ret;
+   rewr
 }
 
 HPDF_EXPORT(HPDF_STATUS)
@@ -446,18 +429,7 @@ HPDF_Image_GetBitsPerComponent (HPDF_Image  image)
 HPDF_EXPORT(const char*)
 HPDF_Image_GetColorSpace (HPDF_Image  image)
 {
-    HPDF_Name n;
-
-    HPDF_PTRACE ((" HPDF_Image_GetColorSpace\n"));
-
-    n = HPDF_Dict_GetItem (image, "ColorSpace", HPDF_OCLASS_NAME);
-
-    if (!n) {
-        HPDF_CheckError (image->error);
-        return NULL;
-    }
-
-    return n->value;
+   rewr
 }
 
 HPDF_EXPORT(HPDF_UINT)
@@ -476,26 +448,7 @@ HPDF_STATUS
 HPDF_Image_SetMask (HPDF_Image   image,
                     HPDF_BOOL    mask)
 {
-    HPDF_Boolean image_mask;
-
-    if (!HPDF_Image_Validate (image))
-        return HPDF_INVALID_IMAGE;
-
-    if (mask && HPDF_Image_GetBitsPerComponent (image) != 1)
-        return HPDF_SetError (image->error, HPDF_INVALID_BIT_PER_COMPONENT,
-                0);
-
-    image_mask = HPDF_Dict_GetItem (image, "ImageMask", HPDF_OCLASS_BOOLEAN);
-    if (!image_mask) {
-        HPDF_STATUS ret;
-        image_mask = HPDF_Boolean_New (image->mmgr, HPDF_FALSE);
-
-        if ((ret = HPDF_Dict_Add (image, "ImageMask", image_mask)) != HPDF_OK)
-            return ret;
-    }
-
-    image_mask->value = mask;
-    return HPDF_OK;
+   rewr
 }
 
 
@@ -503,16 +456,7 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_Image_SetMaskImage  (HPDF_Image   image,
                           HPDF_Image   mask_image)
 {
-    if (!HPDF_Image_Validate (image))
-        return HPDF_INVALID_IMAGE;
-
-    if (!HPDF_Image_Validate (mask_image))
-        return HPDF_INVALID_IMAGE;
-
-    if (HPDF_Image_SetMask (mask_image, HPDF_TRUE) != HPDF_OK)
-        return HPDF_CheckError (image->error);
-
-    return HPDF_Dict_Add (image, "Mask", mask_image);
+   rewrited
 }
 
 

@@ -756,8 +756,10 @@ package com.fxpdf.page
 		    page.HPDF_Page_Validate ();
 		    var attr : HPDF_PageAttr = page.attr as HPDF_PageAttr; 
 		
-	        if (attr.gmode & HPDF_Consts.HPDF_GMODE_TEXT_OBJECT)
-	        	pos = attr.textPos;
+	        if (attr.gmode & HPDF_Consts.HPDF_GMODE_TEXT_OBJECT) {
+	        	pos.x =  attr.textPos.x;
+				pos.y = attr.textPos.y ; 
+			}
 		    
 		  return pos;
 		}

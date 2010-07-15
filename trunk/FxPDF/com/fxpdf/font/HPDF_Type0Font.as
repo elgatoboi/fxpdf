@@ -127,6 +127,7 @@ package com.fxpdf.font
 			var phase			: uint; 
 			var odd				: uint;
 			var sysinfo			: HPDF_Dict;
+			var range 			: HPDF_CidRange_Rec
 			
 			var rn			: String = HPDF_Utils.NEW_LINE;
 			
@@ -251,7 +252,7 @@ package com.fxpdf.font
 			for (i = 0; i < attr.codeSpaceRange.count; i++) 
 			{
 				
-				var range : HPDF_CidRange_Rec = attr.codeSpaceRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
+				range = attr.codeSpaceRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
 				
 				
 				/*pbuf = UINT16ToHex (buf, range->from, eptr);
@@ -276,7 +277,7 @@ package com.fxpdf.font
 			
 			for (i = 0; i < attr.notdefRange.count; i++) {
 				
-				var range : HPDF_CidRange_Rec = attr.notdefRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
+				range = attr.notdefRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
 				
 				/*pbuf = UINT16ToHex (buf, range->from, eptr);
 				*pbuf++ = ' ';
@@ -307,7 +308,7 @@ package com.fxpdf.font
 			for (i = 0; i < attr.cmapRange.count; i++) {
 				
 				//HPDF_CidRange_Rec *range = HPDF_List_ItemAt (attr->cmap_range, i);
-				var range : HPDF_CidRange_Rec = attr.cmapRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
+				range = attr.cmapRange.HPDF_List_ItemAt( i ) as HPDF_CidRange_Rec;
 				
 				/*pbuf = UINT16ToHex (buf, range->from, eptr);
 				*pbuf++ = ' ';
@@ -480,6 +481,7 @@ package com.fxpdf.font
 		var tmpMap			: Vector.<uint> = new Vector.<uint>[65536]; // HPDF_UNICODE tmp_map[65536];
 		var cidSystemInfo	: HPDF_Dict;
 		var max				: uint = 0;
+		var gid				: uint ;
 		
 		trace (" HPDF_CIDFontType2_New");
 		
@@ -515,7 +517,7 @@ package com.fxpdf.font
 					var unicode	: uint = encoderAttr.unicodeMap[i][j];
 					
 					//HPDF_UINT16 gid = HPDF_TTFontDef_GetGlyphid (fontdef, unicode);
-					var gid	: uint = 0; // TODO fontdefAttr.HPDF_TTFontDef_GetGlyphid( unicode );
+					gid = 0; // TODO fontdefAttr.HPDF_TTFontDef_GetGlyphid( unicode );
 					
 					tmpMap[cid] = gid; 
 					if (max < cid)
@@ -567,7 +569,7 @@ package com.fxpdf.font
 				for (i = 0; i < max; i++) {
 					//var u		: Vector.<uint> = new Vector.<uint>[2];
 					var u : uint ; 
-					var gid		: uint  = tmpMap[i];
+					gid = tmpMap[i];
 					
 					u = gid >> 8 & gid;
 					//u[0] = gid >> 7

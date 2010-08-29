@@ -110,43 +110,52 @@
 		]]>
 	</mx:Script>
 	
-	<mx:HBox width="100%">
-		<mx:VBox paddingLeft="50" paddingTop="20">
-			<mx:Button label="Arc Demo" click='runTest("arcDemo");' />
-			<mx:Button label="Encoding List" click='runTest("encodingList");' />
-			<mx:Button label="Font Test" click='runTest("fontTest");' /> 
-			<mx:Button label="Text Demo" click='runTest("textDemo");' />
-			<mx:Button label="Text Demo2" click='runTest("textDemo2");' />
-		</mx:VBox> 
-		<mx:VBox paddingLeft="50" paddingTop="20">
-			<mx:Button label="Chinese Fonts" click='runTest("chineseFonts");' />
-			<mx:HBox>
-				
-				<mx:VBox>
-					<mx:Button label="Encryption" click='runTest("encryption");' />
-					<mx:Button label="Permission" click='runTest("permission");' />
-				</mx:VBox>
-				
-		
-				<mx:Label text="Owner password"/>
-				<mx:TextInput id="txtOwnerPassword" text="owner"/>
+	<mx:VBox width="100%" height="100%">
+	
+		<mx:HBox width="100%">
+			
+			<mx:VBox paddingLeft="50" paddingTop="20">
+				<mx:Button label="Arc Demo" click='runTest("arcDemo");' />
+				<mx:Button label="Encoding List" click='runTest("encodingList");' />
+				<mx:Button label="Font Test" click='runTest("fontTest");' /> 
+				<mx:Button label="Text Demo" click='runTest("textDemo");' />
+				<mx:Button label="Text Demo2" click='runTest("textDemo2");' />
+			</mx:VBox> 
+			
+			<mx:VBox paddingLeft="50" paddingTop="20">
+				<mx:Button label="Chinese Fonts" click='runTest("chineseFonts");' />				
+				<mx:Button label="Extending states" click='runTest("ext_gstate");' />
+				<mx:Button label="PNG demo" click='runTest("png_demo");' />
+				<mx:Button label="JPEG demo" click='runTest("jpeg_demo");' />
+				<mx:Button label="Image demo" click='runTest("image_demo");' />
 
-				<mx:Label text="User password"/>
-				<mx:TextInput id="txtUserPassword" text="user"/>
-				
-			</mx:HBox>
+			</mx:VBox> 	
 			
-			<mx:Button label="Extending states" click='runTest("ext_gstate");' />
+			<mx:VBox paddingLeft="50" paddingTop="20">
+				<mx:Button label="Line demo" click='runTest("line_demo");' />
+				<mx:Button label="Link annot demo" click='runTest("linkAnnotation_demo");' />
+				<mx:Button label="Outline demo" click='runTest("outline_demo");' />
+				<mx:Button label="SlideShow demo" click='runTest("slideshow_demo");' />
+			</mx:VBox>	
+		</mx:HBox>
+		
+		<mx:HRule width="100%"/>
+	
+		<mx:HBox width="100%" paddingLeft="50">
+	
+			<mx:Label text="Owner password"/>
+			<mx:TextInput id="txtOwnerPassword" text="owner" width="100"/>
 			
-			<mx:Button label="PNG demo" click='runTest("png_demo");' />
-			<mx:Button label="JPEG demo" click='runTest("jpeg_demo");' />
-			<mx:Button label="Image demo" click='runTest("image_demo");' />
-			<mx:Button label="Line demo" click='runTest("line_demo");' />
-			<mx:Button label="Link annot demo" click='runTest("linkAnnotation_demo");' />
-			<mx:Button label="Outline demo" click='runTest("outline_demo");' />
-			<mx:Button label="SlideShow demo" click='runTest("slideshow_demo");' />
-		</mx:VBox> 		
-	</mx:HBox>
-	
-	
+			<mx:Label text="User password"/>
+			<mx:TextInput id="txtUserPassword" text="user" width="100"/>
+			
+		</mx:HBox>
+		
+		<mx:HBox width="100%" paddingLeft="50">
+			<mx:Button label="Encryption" click='runTest("encryption");' />
+			<mx:Button label="Permission" click='runTest("permission");' />					
+		</mx:HBox>
+		
+	</mx:VBox>
+		
 </mx:Application>
